@@ -1,0 +1,3 @@
+[submodule "Middlewares/Third_Party/FIFO"]
+	path = Middlewares/Third_Party/FIFO
+	url = git@github.com:geekfactory/FIFO.git
