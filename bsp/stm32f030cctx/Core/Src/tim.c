@@ -19,7 +19,10 @@
 #include <stdint.h>
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include "bsp.h"
 #include "tim.h"
+
+#include "stm32f0xx_it.h"
 
 /* USER CODE BEGIN 0 */
 static volatile uint32_t millisecond_counter;

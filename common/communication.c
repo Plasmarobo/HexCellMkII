@@ -21,59 +21,107 @@
 
 #include "communication.h"
 
+#include "basic_system.h"
 #include "comm_phy.h"
 #include "gpio.h"
+#include "message_protocol.h"
+#include "report.h"
+#include "stm32f0xx_hal.h"
+
+#include "FIFO.h"
 
 #include <stdint.h>
+#include <string.h>
 
-typedef enum
+// Queue of outgoing messages for sending
+typedef struct
 {
-  COMM_STATE_IDLE = 0,
-  COMM_STATE_TRANSMIT,
-  COMM_STATE_RECEIVE,
-  COMM_STATE_ERROR
-} comm_state_t;
+  fifo_t                 queue;
+  struct fifo_descriptor queue_impl;
+  uint8_t                queue_buffer[TX_QUEUE_LENGTH * sizeof(send_opt_t)];
+} tx_queue_t;
 
 typedef struct
 {
-  uint8_t      buffer[COMM_BUFFER_LENGTH];
-  uint16_t     length;
-  comm_state_t state;
-} comm_data_t;
+  fifo_t                 queue;
+  struct fifo_descriptor queue_impl;
+  uint8_t                queue_buffer[RX_QUEUE_LENGTH * sizeof(receive_opt_t)];
+} rx_queue_t;
 
-// Scratch buffer to unblock the comm_phy while we're working
-static comm_data_t    port_state[PORT_MAX];
-static opt_callback_t message_handler;
+static tx_queue_t         send_queue[PORT_MAX];
+static rx_queue_t         receive_queue;
+static message_t          port_buffer[PORT_MAX];
+static port_description_t port_description[PORT_MAX];
+static uint32_t           self_address;
 
-// Handle port listen complete
-void handle_listen(int32_t status, uint32_t port)
+static port_description_t get_own_description(void)
 {
-  if (0 < status)
+  port_description_t own_description;
+  own_description.id            = get_hardware_id();
+  own_description.address       = self_address;
+  own_description.version_major = current_metadata->version_major;
+  own_description.version_minor = current_metadata->version_minor;
+  own_description.version_patch = current_metadata->version_patch;
+  return own_description;
+}
+
+// Handle unsolicited data
+void handle_listen(int32_t port, uint32_t buffer_address)
+{
+  if (port < PORT_MAX)
   {
-    port_state[port].state = COMM_STATE_IDLE;
-    // We should have a complete message here
-    if (NULL != message_handler)
+    // Copy buffer to rx queue
+    if (!fifo_add(receive_queue.queue, &port_buffer[port]))
     {
-      message_handler(status, port_state[port].buffer);
+      // Queue failure, all we can do is drop the message
+      report_error(RT_WARNING, COMM_ERROR_INCOMING_MESSAGE_DROP, 0, port);
     }
   }
-  port_state[port].length = 0;
-  switch (port)
+  port_buffer[port].header.length = 0;
+  listen(port, &port_buffer[port], handle_listen);
+}
+
+void handle_connect_reply(int32_t port, uint32_t buffer_address)
+{
+  if (port < PORT_MAX)
   {
-    case PORT_AI: // Intentional fallthrough
-    case PORT_BI: // Intentional fallthrough
-    case PORT_CI:
-      port_state[port].state = COMM_STATE_RECEIVE;
-      listen(port, port_state[port], handle_listen);
-      break;
-    default: // We don't want to listen on OUTPUT ports
-      break;
+    if (COMM_ERROR_NONE != port_buffer[port].header.status)
+    {
+      report_error(RT_WARNING, COMM_ERROR_INVALID_STATUS, port_buffer[port].header.status, port);
+    }
+    else if (port_buffer[port].header.length < sizeof(port_description_t))
+    {
+      report_error(RT_WARNING, COMM_ERROR_INVALID_LENGTH, port_buffer[port].header.length, port);
+    }
+    else
+    {
+      // Populate the port descriptior
+      memcpy((uint8_t*)&port_description[port], (uint8_t*)&port_buffer[port], sizeof(port_description_t));
+      // Repackage the message for upper layers
+      receive_opt_t opt = {
+        .msg = {
+          .header = {
+            .status = COMM_PORT_CONNECTED,
+            .length = sizeof(port_description_t),
+          },
+        },
+        .origin_port = port,
+      };
+      memcpy(opt.msg.data, (uint8_t*)&port_description[port], sizeof(port_description_t));
+      if (!fifo_add(receive_queue.queue, &opt))
+      {
+        report_error(RT_WARNING, COMM_ERROR_INTERNAL_MESSAGE_DROP, 0, PORT_MAX);
+      }
+    }
   }
 }
 
-// Handle port reply complete
-void handle_reply(int32_t status, uint32_t port)
+void handle_connect_query(int32_t port, uint32_t buffer_address)
 {
+  if (port < PORT_MAX)
+  {
+    listen(port, &port_buffer[port], handle_connect_reply);
+  }
 }
 
 void connect_disconnect_callback(int32_t port, uint32_t connect_status)
@@ -82,39 +130,91 @@ void connect_disconnect_callback(int32_t port, uint32_t connect_status)
   {
     // CONNECT event on an output port
     // send query
-    if (COMM_STATE_IDLE != port_state[port].status)
-    {
-      
-      send(port, )
-    }
+    port_buffer[port].header.status              = COMM_ID_QUERY;
+    port_buffer[port].header.length              = sizeof(port_description_t);
+    port_buffer[port].header.destination_address = 0;
+    port_description_t self                      = get_own_description();
+    memcpy(port_buffer[port].data, (uint8_t*)&self, sizeof(port_description_t));
+    send(port, &port_buffer[port], handle_connect_query);
   }
   else
   {
     // DISCONNECT event on an output port
     // comm phy should reset itself, but we need to clear our state
-    if (COMM_STATE_IDLE != port_state[port].status)
+    port_buffer[port].header.length = 0;
+    port_buffer[port].header.status = 0;
+  }
+}
+
+void communications_init(uint32_t address)
+{
+  self_address = address;
+  for (uint8_t i = PORT_AO; i < PORT_MAX; ++i)
+  {
+    send_queue[i].queue = fifo_create_static(&send_queue[i].queue_impl, send_queue[i].queue_buffer, TX_QUEUE_LENGTH, sizeof(send_opt_t));
+    listen(i, &port_buffer[i], handle_listen);
+  }
+  receive_queue.queue = fifo_create_static(&receive_queue.queue_impl, receive_queue.queue_buffer, RX_QUEUE_LENGTH, sizeof(receive_opt_t));
+  on_connect_disconnect(connect_disconnect_callback);
+}
+
+void communications_update(void)
+{
+  // Scan ports, dequeue any queued messages to free ports
+  for (uint8_t port = PORT_AO; port < PORT_MAX; ++port)
+  {
+    // Check bank signal lines
+    if (!port_busy(port) && !fifo_is_empty(send_queue[port].queue))
     {
+      send_opt_t opt;
+      if (fifo_get(send_queue[port].queue, &opt))
+      {
+        port_buffer[port] = opt.msg;
+        send(port, &port_buffer[port], opt.cb);
+      }
+      else
+      {
+        report_error(RT_WARNING, COMM_ERROR_INTERNAL_MESSAGE_DROP, 0, port);
+      }
     }
   }
 }
 
-void communications_init(opt_callback_t message_callback)
+void queue_message_send(comm_port_t port, message_t* msg, opt_callback_t callback)
 {
-  // Listen on all input interfaces
-  message_handler           = message_callback;
-  port_state[PORT_AO].state = COMM_STATE_IDLE;
-  port_state[PORT_BO].state = COMM_STATE_IDLE;
-  port_state[PORT_CO].state = COMM_STATE_IDLE;
-
-  port_state[PORT_AI].state = COMM_STATE_RECEIVE;
-  listen(PORT_AI, port_state[PORT_AI].buffer, handle_listen);
-  port_state[PORT_BI].state = COMM_STATE_RECEIVE;
-  listen(PORT_BI, port_state[PORT_BI].buffer, handle_listen);
-  port_state[PORT_CI].state = COMM_STATE_RECEIVE;
-  listen(PORT_CI, port_state[PORT_CI].buffer, handle_listen);
-  on_connect_disconnect(connect_disconnect_callback);
+  if (NULL != msg)
+  {
+    // is the phy layer busy?
+    if (!port_busy(port))
+    {
+      memcpy(&port_buffer[port], msg, sizeof(message_t));
+      send(port, &port_buffer[port], callback);
+    }
+    else
+    {
+      send_opt_t opt = {
+        .msg = *msg,
+        .cb  = callback,
+      };
+      if (!fifo_add(send_queue[port].queue, &opt))
+      {
+        report_error(RT_WARNING, COMM_ERROR_OUTGOING_MESSAGE_DROP, 0, port);
+      }
+    }
+  }
 }
 
-void communications_update(opt_callback_t callback)
+bool received_messages_empty(void)
 {
+  return fifo_is_empty(receive_queue.queue);
+}
+
+receive_opt_t dequeue_message(void)
+{
+  receive_opt_t msg;
+  if (!fifo_is_empty(receive_queue.queue))
+  {
+    fifo_get(receive_queue.queue, &msg);
+  }
+  return msg;
 }

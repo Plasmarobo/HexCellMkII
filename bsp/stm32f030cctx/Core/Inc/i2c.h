@@ -26,11 +26,13 @@ extern "C"
 {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
+  /* Includes ------------------------------------------------------------------*/
 
   /* USER CODE BEGIN Includes */
+#include "opt_prototypes.h"
 
+#include "stm32f0xx.h"
+#include "stm32f0xx_hal.h"
   /* USER CODE END Includes */
 
   extern I2C_HandleTypeDef hi2c1;
@@ -38,7 +40,10 @@ extern "C"
   extern I2C_HandleTypeDef hi2c2;
 
   /* USER CODE BEGIN Private defines */
+#define I2C_SUCCESS (0)
+#define I2C_ERROR (-1)
 
+  typedef void (*address_callback_t)(uint8_t direction, uint16_t address);
   /* USER CODE END Private defines */
 
   void MX_I2C1_Init(void);

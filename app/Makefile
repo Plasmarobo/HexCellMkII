@@ -1,0 +1,1 @@
+LDFLAGS += -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref

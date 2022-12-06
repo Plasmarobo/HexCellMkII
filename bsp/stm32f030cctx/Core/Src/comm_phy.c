@@ -1,18 +1,20 @@
 #include "comm_phy.h"
 
 #include "gpio.h"
+#include "message_protocol.h"
+#include "stm32f0xx.h"
 #include "stm32f0xx_hal.h"
+#include "usart.h"
 
 #include <stdint.h>
 
 typedef struct
 {
-  uint16_t       length;
-  uint8_t*       buffer;
+  message_t*     buffer;
   opt_callback_t callback;
 } port_state_t;
 
-static port_state_t     port_data[PORT_MAX];
+static port_state_t     port_data[PORT_MAX] = { 0 };
 static volatile uint8_t connected_status;
 static opt_callback_t   connect_status_callback;
 
@@ -37,7 +39,8 @@ void read_body_callback(int32_t status, uint32_t port)
       if (NULL != port_data[port].callback)
       {
         // We shouldn't need to pass the buffer back, but do so just in case
-        port_data[port].callback(port_data[port].length, port);
+        port_data[port].callback(port, (uint32_t)port_data[port].buffer);
+        port_data[port].callback = NULL;
         // Do not listen again: we may want to process or copy the data, allow the CB to start the next listen
       }
     }
@@ -56,7 +59,7 @@ void listen_callback(int32_t status, uint32_t port)
     else
     {
       // We've read the length, gather the remaining bytes
-      uart_receive(port, port_data[port].buffer, port_data[port].length, read_body_callback);
+      uart_receive(port, port_data[port].buffer->data, port_data[port].buffer->header.length, read_body_callback);
     }
   }
 }
@@ -74,7 +77,8 @@ void write_body_callback(int32_t status, uint32_t port)
       if (NULL != port_data[port].callback)
       {
         // We shouldn't need to send the buffer back, but do so just in case
-        port_data[port].callback(port_data[port].length, port);
+        port_data[port].callback(port, (uint32_t)&port_data[port].buffer);
+        port_data[port].callback = NULL;
       }
     }
   }
@@ -90,7 +94,7 @@ void send_callback(int32_t status, uint32_t port)
     }
     else
     {
-      uart_send(port, port_data[port].buffer, port_data[port].length, write_body_callback);
+      uart_send(port, port_data[port].buffer->data, port_data[port].buffer->header.length, write_body_callback);
     }
   }
 }
@@ -114,27 +118,35 @@ void comm_phy_init(void)
 }
 
 // Read the header and body from the port, return final body buffer
-void listen(comm_port_t port, uint8_t* buffer, opt_callback_t cb)
+void listen(comm_port_t port, message_t* buffer, opt_callback_t cb)
 {
-  if (port < PORT_MAX)
+  if ((port < PORT_MAX) && (NULL != buffer))
   {
     port_data[port].callback = cb;
     port_data[port].buffer   = buffer;
     // Listen for incoming transaction length
-    uart_receive(port, &(port_data[port].length), sizeof(uint16_t), listen_callback);
+    uart_receive(port, (uint8_t*)&(port_data[port].buffer->header), sizeof(message_header_t), listen_callback);
   }
 }
 /* Send data to a port */
-void send(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb)
+void send(comm_port_t port, message_t* buffer, opt_callback_t cb)
 {
   // Don't send if we don't have something connected
-  if ((port < PORT_MAX) && is_connected(port) && (NULL != buffer) && (0 < length))
+  if ((port < PORT_MAX) && is_connected(port) && (NULL != buffer) && (0 < buffer->header.length))
   {
     port_data[port].callback = cb;
     port_data[port].buffer   = buffer;
-    port_data[port].length   = length;
-    uart_send(port, &length, sizeof(uint16_t), send_callback);
+    uart_send(port, (uint8_t*)&(port_data[port].buffer->header), sizeof(message_header_t), send_callback);
   }
+}
+
+bool port_busy(comm_port_t port)
+{
+  if (port < PORT_MAX)
+  {
+    return NULL != port_data[port].callback;
+  }
+  return true;
 }
 
 bool is_connected(comm_port_t port)
@@ -150,8 +162,8 @@ void on_connect_disconnect(opt_callback_t cb)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   comm_port_t port      = PORT_MAX;
-  uint8_t     gpio_port = 0;
-  switch (GPIO_pin)
+  GPIO_TypeDef* gpio_port = NULL;
+  switch (GPIO_Pin)
   {
     case DETECT_B_Pin:
       port      = PORT_BO;

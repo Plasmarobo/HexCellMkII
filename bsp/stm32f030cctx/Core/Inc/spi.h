@@ -26,12 +26,12 @@ extern "C"
 {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
+  /* Includes ------------------------------------------------------------------*/
 
   /* USER CODE BEGIN Includes */
 #include "opt_prototypes.h"
-
+#include "stm32f0xx.h"
+#include "stm32f0xx_hal.h"
 #include <stdint.h>
   /* USER CODE END Includes */
 

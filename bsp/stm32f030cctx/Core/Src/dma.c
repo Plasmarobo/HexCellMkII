@@ -20,7 +20,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "dma.h"
-
+#include "stm32f0xx.h"
+#include "stm32f0xx_hal.h"
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */

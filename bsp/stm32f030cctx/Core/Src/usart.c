@@ -21,6 +21,9 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include "bsp.h"
+
+#include "stm32f0xx.h"
 #include "stm32f0xx_hal.h"
 
 #include <string.h>
@@ -51,8 +54,6 @@ void MX_USART1_UART_Init(void)
   uart_state_data[PORT_CO].huart  = &huart1;
   uart_state_data[PORT_CO].rx_cb  = NULL;
   uart_state_data[PORT_CO].tx_cb  = NULL;
-  uart_state_data[PORT_CO].tx_ptr = uart_state_data[PORT_CO].tx_buffer;
-  uart_state_data[PORT_CO].rx_ptr = uart_state_data[PORT_CO].rx_buffer;
   /* USER CODE END USART1_Init 0 */
 
   /* USER CODE BEGIN USART1_Init 1 */
@@ -86,8 +87,6 @@ void MX_USART2_UART_Init(void)
   uart_state_data[PORT_BI].huart  = &huart2;
   uart_state_data[PORT_BI].rx_cb  = NULL;
   uart_state_data[PORT_BI].tx_cb  = NULL;
-  uart_state_data[PORT_BI].tx_ptr = uart_state_data[PORT_BI].tx_buffer;
-  uart_state_data[PORT_BI].rx_ptr = uart_state_data[PORT_BI].rx_buffer;
   /* USER CODE END USART2_Init 0 */
 
   /* USER CODE BEGIN USART2_Init 1 */
@@ -121,8 +120,6 @@ void MX_USART3_UART_Init(void)
   uart_state_data[PORT_AI].huart  = &huart3;
   uart_state_data[PORT_AI].rx_cb  = NULL;
   uart_state_data[PORT_AI].tx_cb  = NULL;
-  uart_state_data[PORT_AI].tx_ptr = uart_state_data[PORT_AI].tx_buffer;
-  uart_state_data[PORT_AI].rx_ptr = uart_state_data[PORT_AI].rx_buffer;
   /* USER CODE END USART3_Init 0 */
 
   /* USER CODE BEGIN USART3_Init 1 */
@@ -156,8 +153,6 @@ void MX_USART4_UART_Init(void)
   uart_state_data[PORT_CI].huart  = &huart4;
   uart_state_data[PORT_CI].rx_cb  = NULL;
   uart_state_data[PORT_CI].tx_cb  = NULL;
-  uart_state_data[PORT_CI].tx_ptr = uart_state_data[PORT_CI].tx_buffer;
-  uart_state_data[PORT_CI].rx_ptr = uart_state_data[PORT_CI].rx_buffer;
   /* USER CODE END USART4_Init 0 */
 
   /* USER CODE BEGIN USART4_Init 1 */
@@ -190,8 +185,6 @@ void MX_USART5_UART_Init(void)
   uart_state_data[PORT_AO].huart  = &huart5;
   uart_state_data[PORT_AO].rx_cb  = NULL;
   uart_state_data[PORT_AO].tx_cb  = NULL;
-  uart_state_data[PORT_AO].tx_ptr = uart_state_data[PORT_AO].tx_buffer;
-  uart_state_data[PORT_AO].rx_ptr = uart_state_data[PORT_AO].rx_buffer;
   /* USER CODE END USART5_Init 0 */
 
   /* USER CODE BEGIN USART5_Init 1 */
@@ -224,8 +217,6 @@ void MX_USART6_UART_Init(void)
   uart_state_data[PORT_BO].huart  = &huart6;
   uart_state_data[PORT_BO].rx_cb  = NULL;
   uart_state_data[PORT_BO].tx_cb  = NULL;
-  uart_state_data[PORT_BO].tx_ptr = uart_state_data[PORT_BO].tx_buffer;
-  uart_state_data[PORT_BO].rx_ptr = uart_state_data[PORT_BO].rx_buffer;
   /* USER CODE END USART6_Init 0 */
 
   /* USER CODE BEGIN USART6_Init 1 */
@@ -572,12 +563,12 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void handle_abort(int32_t user1, uintptr_t user2)
+static void handle_abort(int32_t user1, uint32_t user2)
 {
   // Noop
 }
 
-int32_t uart_send(uart_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb)
+int32_t uart_send(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb)
 {
   int32_t response = UART_SUCCESS;
   if ((port >= PORT_MAX) || (NULL == buffer) || (0 == length) || (NULL == cb))
@@ -588,14 +579,9 @@ int32_t uart_send(uart_port_t port, uint8_t* buffer, uint16_t length, opt_callba
   {
     response = UART_ERR_BUSY;
   }
-  else if (length >= UART_BUFFER_LEN)
-  {
-    response = UART_ERR_OVERFLOW;
-  }
   else
   {
-    uart_state_data[port].tx_cb     = cb;
-    uart_state_data[port].tx_length = length;
+    uart_state_data[port].tx_cb = cb;
     if (HAL_OK != HAL_UART_Transmit_IT(uart_state_data[port].huart, buffer, length))
     {
       response = UART_ERR_BUSY;
@@ -604,7 +590,7 @@ int32_t uart_send(uart_port_t port, uint8_t* buffer, uint16_t length, opt_callba
   return response;
 }
 
-void uart_recieve(uart_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb)
+int32_t uart_receive(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb)
 {
   int32_t response = UART_SUCCESS;
   if ((port >= PORT_MAX) || (NULL == buffer) || (0 == length) || (NULL == cb))
@@ -615,14 +601,9 @@ void uart_recieve(uart_port_t port, uint8_t* buffer, uint16_t length, opt_callba
   {
     response = UART_ERR_BUSY;
   }
-  else if (length >= UART_BUFFER_LEN)
-  {
-    response = UART_ERR_OVERFLOW;
-  }
   else
   {
-    uart_state_data[port].rx_cb     = cb;
-    uart_state_data[port].rx_length = length;
+    uart_state_data[port].rx_cb = cb;
     if (HAL_OK != HAL_UART_Receive_IT(uart_state_data[port].huart, buffer, length))
     {
       response = UART_ERR_BUSY;
@@ -631,7 +612,7 @@ void uart_recieve(uart_port_t port, uint8_t* buffer, uint16_t length, opt_callba
   return response;
 }
 
-void uart_abort_tx(uart_port_t port)
+void uart_abort_tx(comm_port_t port)
 {
   if (port < PORT_MAX)
   {
@@ -641,7 +622,7 @@ void uart_abort_tx(uart_port_t port)
   }
 }
 
-void uart_abort_rx(uart_port_t port)
+void uart_abort_rx(comm_port_t port)
 {
   if (port < PORT_MAX)
   {

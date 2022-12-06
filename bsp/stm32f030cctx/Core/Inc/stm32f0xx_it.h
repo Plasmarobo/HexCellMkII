@@ -27,43 +27,44 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdbool.h>
+   /* USER CODE END Includes */
 
-/* USER CODE END Includes */
+   /* Exported types ------------------------------------------------------------*/
+   /* USER CODE BEGIN ET */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+   /* USER CODE END ET */
 
-/* USER CODE END ET */
+   /* Exported constants --------------------------------------------------------*/
+   /* USER CODE BEGIN EC */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
+   /* USER CODE END EC */
 
-/* USER CODE END EC */
+   /* Exported macro ------------------------------------------------------------*/
+   /* USER CODE BEGIN EM */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+   /* USER CODE END EM */
 
-/* USER CODE END EM */
-
-/* Exported functions prototypes ---------------------------------------------*/
-void NMI_Handler(void);
-void HardFault_Handler(void);
-void RTC_IRQHandler(void);
-void FLASH_IRQHandler(void);
-void RCC_IRQHandler(void);
-void DMA1_Channel2_3_IRQHandler(void);
-void DMA1_Channel4_5_IRQHandler(void);
-void TIM1_BRK_UP_TRG_COM_IRQHandler(void);
-void TIM7_IRQHandler(void);
-void I2C1_IRQHandler(void);
-void I2C2_IRQHandler(void);
-void SPI2_IRQHandler(void);
-void USART1_IRQHandler(void);
-void USART2_IRQHandler(void);
-void USART3_6_IRQHandler(void);
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
+   /* Exported functions prototypes ---------------------------------------------*/
+   void NMI_Handler(void);
+   void HardFault_Handler(void);
+   void RTC_IRQHandler(void);
+   void FLASH_IRQHandler(void);
+   void RCC_IRQHandler(void);
+   void DMA1_Channel2_3_IRQHandler(void);
+   void DMA1_Channel4_5_IRQHandler(void);
+   void TIM1_BRK_UP_TRG_COM_IRQHandler(void);
+   void TIM7_IRQHandler(void);
+   void I2C1_IRQHandler(void);
+   void I2C2_IRQHandler(void);
+   void SPI2_IRQHandler(void);
+   void USART1_IRQHandler(void);
+   void USART2_IRQHandler(void);
+   void USART3_6_IRQHandler(void);
+   /* USER CODE BEGIN EFP */
+   bool hal_interrupt_disable(void);
+   void hal_interrupt_enable(bool s);
+   /* USER CODE END EFP */
 
 #ifdef __cplusplus
 }

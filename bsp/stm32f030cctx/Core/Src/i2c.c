@@ -21,7 +21,10 @@
 #include "i2c.h"
 
 /* USER CODE BEGIN 0 */
+#include "bsp.h"
 #include "opt_prototypes.h"
+
+#include "stm32f0xx.h"
 #include "stm32f0xx_hal.h"
 
 static opt_callback_t     i2c1_rx_callback;
@@ -528,7 +531,7 @@ void i2c2_generate_nak(void)
 void i2c1_abort(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-  HAL_I2C_DMAStop(&hi2c1);
+  // HAL_I2C_DMAStop(&hi2c1);
   HAL_I2C_DeInit(&hi2c1); // Release pins, reset handle status flag
 
   __HAL_RCC_I2C2_FORCE_RESET();
@@ -543,17 +546,17 @@ void i2c1_abort(void)
   // Drive SCL Low
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
   // Drive SDA High
-  vTaskDelay(10);
+  // vTaskDelay(10);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
-  vTaskDelay(20);
+  // vTaskDelay(20);
   for (uint8_t i = 0; i < 12; ++i)
   {
     // Clock out 12 cycles to clear bus
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
-    vTaskDelay(10);
+    // vTaskDelay(10);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
-    vTaskDelay(10);
+    // vTaskDelay(10);
   }
   // Re-enable I2C
   HAL_I2C_Init(&hi2c1);
@@ -562,7 +565,7 @@ void i2c1_abort(void)
 void i2c2_abort(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-  HAL_I2C_DMAStop(&hi2c2);
+  // HAL_I2C_DMAStop(&hi2c2);
   HAL_I2C_DeInit(&hi2c2); // Release pins, reset handle status flag
 
   __HAL_RCC_I2C2_FORCE_RESET();
@@ -577,7 +580,7 @@ void i2c2_abort(void)
   // Drive SCL
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
   // Drive SDA High
-  vTaskDelay(10);
+  // vTaskDelay(10);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
   // Re-enable I2C
   HAL_I2C_Init(&hi2c1);

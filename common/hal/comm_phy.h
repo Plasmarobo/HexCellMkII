@@ -13,6 +13,7 @@
  * Each BSP must implement this interface
  */
 
+#include "message_protocol.h"
 #include "opt_prototypes.h"
 
 #include <stdbool.h>
@@ -21,29 +22,38 @@
 #define COMM_SUCCESS (0)
 #define COMM_ERR_UNKNOWN (-1)
 #define COMM_PORT_MASK(port) (0x1 << port)
+#define COMM_BANK(port) (port / 2)
+#define COMM_DIR_OUT (0)
+#define COMM_DIR_IN (1)
+#define COMM_PORT(bank, dir) ((bank * 2) + (dir ? 1 : 0)
 
 typedef enum
 {
-  PORT_CO = 0,
-  PORT_BI,
+  PORT_AO = 0,
   PORT_AI,
-  PORT_CI,
-  PORT_AO,
   PORT_BO,
+  PORT_BI,
+  PORT_CO,
+  PORT_CI,
   PORT_MAX,
 } comm_port_t;
 
-typedef struct
+typedef enum
 {
-  uint16_t length;
-} comm_header_t;
+  BANK_A,
+  BANK_B,
+  BANK_C,
+  BANK_MAX,
+} comm_bank_t;
 
 /* Initialize comm phy structures*/
 void comm_phy_init(void);
 /* Listen on a port */
-void listen(comm_port_t port, uint8_t* buffer, opt_callback_t cb);
+void listen(comm_port_t port, message_t* buffer, opt_callback_t cb);
 /* Send data to a port */
-void send(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb);
+void send(comm_port_t port, message_t* buffer, opt_callback_t cb);
+/* Queries port for activity */
+bool port_busy(comm_port_t port);
 /**
  * @brief Determines if hardware is connected, only applies to OUTPUT ports
  *

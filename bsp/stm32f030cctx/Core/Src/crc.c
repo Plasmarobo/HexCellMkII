@@ -20,8 +20,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "crc.h"
 
+#include "bsp.h"
 /* USER CODE BEGIN 0 */
-
+static uint32_t current_crc;
 /* USER CODE END 0 */
 
 CRC_HandleTypeDef hcrc;
@@ -39,8 +40,8 @@ void MX_CRC_Init(void)
   /* USER CODE END CRC_Init 1 */
   hcrc.Instance = CRC;
   hcrc.Init.DefaultInitValueUse = DEFAULT_INIT_VALUE_ENABLE;
-  hcrc.Init.InputDataInversionMode = CRC_INPUTDATA_INVERSION_NONE;
-  hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
+  hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_BYTE;
+  hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_ENABLE;
   hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
   if (HAL_CRC_Init(&hcrc) != HAL_OK)
   {
@@ -85,5 +86,19 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef* crcHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void start_crc(uint8_t* buffer, uint32_t length)
+{
+  current_crc = 0;
+  current_crc = HAL_CRC_Calculate(&hcrc, (uint32_t*)buffer, length / sizeof(uint32_t));
+}
 
+void continue_crc(uint8_t* buffer, uint32_t length)
+{
+  current_crc = HAL_CRC_Accumulate(&hcrc, (uint32_t*)buffer, length / sizeof(uint32_t));
+}
+
+uint32_t finish_crc(void)
+{
+  return ~current_crc;
+}
 /* USER CODE END 1 */

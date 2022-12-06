@@ -20,8 +20,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "rtc.h"
 
+#include "bsp.h"
 /* USER CODE BEGIN 0 */
-
+#include "stm32f0xx.h"
+#include "stm32f0xx_hal.h"
+#include "stm32f0xx_it.h"
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;

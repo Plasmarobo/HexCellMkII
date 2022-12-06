@@ -18,10 +18,12 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include "stm32f0xx_it.h"
+#include "stm32f0xx.h"
+#include "stm32f0xx_hal.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "bsp.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -343,5 +345,18 @@ void USART3_6_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+bool hal_interrupt_disable(void)
+{
+  bool result = (__get_PRIMASK() == 0);
+  __disable_irq();
+  return result;
+}
 
+void hal_interrupt_enable(bool s)
+{
+  if (s)
+  {
+    __enable_irq();
+  }
+}
 /* USER CODE END 1 */

@@ -27,10 +27,12 @@ extern "C"
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 
 /* USER CODE BEGIN Includes */
 #include "comm_phy.h"
+
+#include "stm32f0xx.h"
+#include "stm32f0xx_hal.h"
 
 #include <stdint.h>
   /* USER CODE END Includes */
@@ -66,10 +68,10 @@ extern "C"
   void MX_USART6_UART_Init(void);
 
   /* USER CODE BEGIN Prototypes */
-  int32_t uart_send(uart_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb);
-  int32_t uart_receive(uart_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb);
-  void    uart_abort_tx(uart_port_t port);
-  void    uart_abort_rx(uart_port_t port);
+  int32_t uart_send(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb);
+  int32_t uart_receive(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb);
+  void    uart_abort_tx(comm_port_t port);
+  void    uart_abort_rx(comm_port_t port);
 
   /* USER CODE END Prototypes */
 

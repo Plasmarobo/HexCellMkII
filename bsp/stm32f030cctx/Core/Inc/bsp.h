@@ -100,7 +100,7 @@ void Error_Handler(void);
 #define EN_3V3_Pin GPIO_PIN_9
 #define EN_3V3_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-
+void board_init(void);
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

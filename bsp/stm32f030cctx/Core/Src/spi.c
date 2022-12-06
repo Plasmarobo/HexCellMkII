@@ -21,7 +21,10 @@
 #include "spi.h"
 
 /* USER CODE BEGIN 0 */
+#include "bsp.h"
 #include "opt_prototypes.h"
+#include "stm32f0xx_it.h"
+
 #include "stm32f0xx_hal.h"
 
 static opt_callback_t operation_callback;

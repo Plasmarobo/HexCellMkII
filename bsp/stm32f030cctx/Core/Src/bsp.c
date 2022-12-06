@@ -29,7 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+void SystemClock_Config(void);
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,7 +53,7 @@
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -67,7 +67,7 @@ void SystemClock_Config(void);
  * @brief  The application entry point.
  * @retval int
  */
-int board_init(void)
+void board_init(void)
 {
   /* USER CODE BEGIN 1 */
 
@@ -106,7 +106,6 @@ int board_init(void)
   MX_TIM7_Init();
   MX_TIM14_Init();
   /* USER CODE BEGIN 2 */
-
   /* USER CODE END 2 */
 }
 
