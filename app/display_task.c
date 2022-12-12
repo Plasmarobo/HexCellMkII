@@ -12,7 +12,7 @@
 #define DISPLAY_MAX_WAIT_MS (10)
 #define DISPLAY_UPDATE_MS (5)
 
-#define DISPLAY_TASK_STACK_SIZE (configMINIMAL_STACK_SIZE * 4)
+#define DISPLAY_TASK_STACK_SIZE (configMINIMAL_STACK_SIZE)
 
 static StackType_t  stack_buffer[DISPLAY_TASK_STACK_SIZE];
 static StaticTask_t tcb_buffer;

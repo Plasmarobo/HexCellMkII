@@ -1,5 +1,5 @@
 
-TARGET=bootloader
+TARGET = bootloader_$(HW_VERSION)
 # Pull in BSP variables
 include $(BSP_PREFIX)/build.mk
 
@@ -15,11 +15,11 @@ $(wildcard ../common/*.c) \
 $(wildcard ../Middlewares/Third_Party/FIFO/*.c)
 
 # link script
-LDSCRIPT = ../$(TARGET)/BOOTLOADER.ld
+LDSCRIPT = ../bootloader/BOOTLOADER.ld
 LDFLAGS += -T$(LDSCRIPT) -Wl,-Map=$(TARGET).map,--cref
 .PHONY: all
 
-all: $(TARGET).srec $(TARGET).elf $(TARGET).hex $(TARGET).bin
+all: $(TARGET).srec $(TARGET).elf $(TARGET).hex $(TARGET).bin $(TARGET).fwu
 
 # Pull in general recepies
 include ../build.mk

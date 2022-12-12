@@ -43,6 +43,8 @@ extern "C"
   void MX_TIM7_Init(void);
   void MX_TIM14_Init(void);
 
+  void time_init(void);
+
   /* USER CODE BEGIN Prototypes */
 
   /* USER CODE END Prototypes */

@@ -40,6 +40,9 @@ $(info =================================  Build  ===============================
 %.srec: %.elf
 	$(CP) -O srec $< $@
 
+%.fwu: %.bin
+	python ../tools/image_builder.py -f $< -v $(FW_VERSION_MAJOR).$(FW_VERSION_MINOR).$(FW_VERSION_PATCH) -r $(HW_VERSION) -o $@
+
 $(BUILD_DIR):
 	mkdir -p $@
 

@@ -13,6 +13,7 @@
  * RGB leds, each BSP must implement this interface
  */
 #include "opt_prototypes.h"
+#include "version.h"
 
 #include <stdint.h>
 
@@ -33,16 +34,16 @@
  */
 #if (HW_VERSION == HW_VERSION_MKI)
 #define LED_COUNT (3)
-#elif (HW_VERSION >= HW_VERSION_MKIR2) && (HW_VERSION <= HW_VERISON_MKIR3)
+#elif (HW_VERSION > HW_VERSION_MKI) && (HW_VERSION <= HW_VERSION_MKIR3)
 #define LED_COUNT (6)
-#elif (HW_VERSION >= HW_VERSION_MKIR4) && (HW_VERSION <= HW_VERSION_MKIIR2)
+#elif (HW_VERSION > HW_VERSION_MKIR3) && (HW_VERSION <= HW_VERSION_MKIIR2)
 #define LED_COUNT (7)
-#elif (HW_VERSION >= HW_VERSION_MKIIR3) && (HW_VERSION <= HW_VERSION_MKIVR1)
+#elif (HW_VERSION > HW_VERSION_MKIIR2) && (HW_VERSION <= HW_VERSION_MKIVR1)
 #define LED_COUNT (6)
-#elif (HW_VERSION >= HW_VERSION_MKVR1) && (HW_VERSION <= HW_VERSION_MKVR1L)
+#elif (HW_VERSION > HW_VERSION_MKIVR1) && (HW_VERSION <= HW_VERSION_MKVR1L)
 #define LED_COUNT (7)
 #else
-#error "Undefined LED count, define leds for hardware version"
+#error "Invalid HW_VERSION, unknown LED_COUNT, define leds for hardware version"
 #endif
 
 void set_rgb(uint8_t address, uint8_t r, uint8_t g, uint8_t b);

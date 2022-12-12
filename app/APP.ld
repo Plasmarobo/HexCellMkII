@@ -1,5 +1,53 @@
+/*
+******************************************************************************
+**
 
-INCLUDE STM32F030CCTx_FLASH.ld
+**  File        : LinkerScript.ld
+**
+**  Author		: STM32CubeMX
+**
+**  Abstract    : Linker script for STM32F030CCTx series
+**                256Kbytes FLASH and 32Kbytes RAM
+**
+**                Set heap size, stack size and stack location according
+**                to application requirements.
+**
+**                Set memory bank area and size if external memory is used.
+**
+**  Target      : STMicroelectronics STM32
+**
+**  Distribution: The file is distributed “as is,” without any warranty
+**                of any kind.
+**
+*****************************************************************************
+** @attention
+**
+** <h2><center>&copy; COPYRIGHT(c) 2019 STMicroelectronics</center></h2>
+**
+** Redistribution and use in source and binary forms, with or without modification,
+** are permitted provided that the following conditions are met:
+**   1. Redistributions of source code must retain the above copyright notice,
+**      this list of conditions and the following disclaimer.
+**   2. Redistributions in binary form must reproduce the above copyright notice,
+**      this list of conditions and the following disclaimer in the documentation
+**      and/or other materials provided with the distribution.
+**   3. Neither the name of STMicroelectronics nor the names of its contributors
+**      may be used to endorse or promote products derived from this software
+**      without specific prior written permission.
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+** AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+** IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+** DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+** FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+** DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+** SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+** CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+** OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**
+*****************************************************************************
+*/
 
 /* Entry Point */
 ENTRY(Reset_Handler)
@@ -10,6 +58,42 @@ _estack = ORIGIN(RAM) + LENGTH(RAM);    /* end of RAM */
 _Min_Heap_Size = 0x0;      /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
+_ORIGIN_FLASH = 0x8000000;
+_LENGTH_FLASH = 256K;
+_LAST_FLASH = _ORIGIN_FLASH + _LENGTH_FLASH - 1;
+_LENGTH_RAM_ALL = 32K;
+_ORIGIN_RAM = 0x20000000;
+_ORIGIN_SYSMEM = 0x1FFF0000;
+_PAGE_LENGTH = 2K;
+
+/* aligned to page for simplicity */
+_LENGTH_META = 2K;
+_LENGTH_BL = 32K;
+/* Rest of flash */
+_LENGTH_APP = _LENGTH_FLASH - (_LENGTH_META + _LENGTH_BL + _LENGTH_META);
+
+_ORIGIN_BL = _ORIGIN_FLASH;
+_ORIGIN_BL_META = (_ORIGIN_BL + _LENGTH_BL);
+_ORIGIN_APP = _ORIGIN_BL + _LENGTH_BL + _LENGTH_META;
+_ORIGIN_APP_META = _ORIGIN_APP + _LENGTH_APP;
+
+/* Should track the size of the reset structure */
+_LENGTH_RAM_NOLOAD = 12;
+_LENGTH_RAM_LOAD = (_LENGTH_RAM_ALL - _LENGTH_RAM_NOLOAD);
+_ORIGIN_RAM_NOLOAD = _ORIGIN_RAM + _LENGTH_RAM_LOAD;
+
+/* Specify the memory areas */
+MEMORY
+{
+RAM (xrw)      : ORIGIN = _ORIGIN_RAM, LENGTH = _LENGTH_RAM_ALL
+FLASH (rx)      : ORIGIN = _ORIGIN_FLASH, LENGTH = _LENGTH_FLASH
+FLASH_BL (rx)       : ORIGIN = _ORIGIN_BL, LENGTH = _LENGTH_BL
+FLASH_BL_META (rw)  : ORIGIN = _ORIGIN_BL_META, LENGTH = _LENGTH_META
+/* Ensure the vector table is aligned */
+FLASH_APP (rx)      : ORIGIN = _ORIGIN_APP, LENGTH = _LENGTH_APP
+FLASH_APP_META (rw) : ORIGIN = _ORIGIN_APP_META, LENGTH = _LENGTH_META
+}
+
 /* Define output sections */
 SECTIONS
 {
@@ -19,7 +103,7 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } >FLASH_APP
+  } >FLASH
 
   /* The program code and other data goes into FLASH */
   .text :
@@ -36,7 +120,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH_APP AT> FLASH_APP
+  } >FLASH
 
   /* Constant data goes into FLASH */
   .rodata :
@@ -45,35 +129,35 @@ SECTIONS
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >FLASH_APP
+  } >FLASH
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
   .ARM : {
     __exidx_start = .;
     *(.ARM.exidx*)
     __exidx_end = .;
-  } >FLASH_APP
+  } >FLASH
 
   .preinit_array     :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
-  } >FLASH_APP
+  } >FLASH
   .init_array :
   {
     PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
-  } >FLASH_APP
+  } >FLASH
   .fini_array :
   {
     PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(SORT(.fini_array.*)))
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
-  } >FLASH_APP
+  } >FLASH
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
@@ -88,7 +172,7 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >RAM AT> FLASH_APP
+  } >RAM AT> FLASH
 
   
   /* Uninitialized data section */
@@ -105,7 +189,7 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
-  } >RAM AT> RAM
+  } >RAM
 
   /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack :
@@ -116,7 +200,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >RAM AT> RAM
+  } >RAM
 
   
 

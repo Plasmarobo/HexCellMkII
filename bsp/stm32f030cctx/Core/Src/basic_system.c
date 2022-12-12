@@ -16,7 +16,7 @@
 #include <string.h>
 
 // Should be baked into image metadata and unchanged
-#define HW_VERSION (0x01)
+// #define HW_VERSION (0x01)
 // 2KB for the STM32F030CCT6
 #define PAGE_SIZE (2048)
 

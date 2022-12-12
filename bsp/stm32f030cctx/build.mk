@@ -1,4 +1,9 @@
 #Defines variables for a specific board/processor
+# C defines
+C_DEFS += \
+-DUSE_HAL_DRIVER \
+-DSTM32F030xC \
+-DHW_VERSION=$(HW_VERSION)
 
 #######################################
 # binaries
@@ -79,8 +84,3 @@ $(wildcard $(BSP_PREFIX)/Drivers/STM32F0xx_HAL_Driver/Src/*.c)
 # ASM sources
 ASM_SOURCES += \
 $(wildcard $(BSP_PREFIX)/*.s)
-
-# C defines
-C_DEFS += \
--DUSE_HAL_DRIVER \
--DSTM32F030xC

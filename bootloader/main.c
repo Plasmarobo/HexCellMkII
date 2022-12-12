@@ -12,13 +12,16 @@
 #include "bootloader.h"
 #include "communication.h"
 #include "display.h"
-#include "leds.h"
 #include "reset.h"
+#include "time.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
-volatile bool display_ready = true;
+#define DISPLAY_LIMIT_MS (10)
+
+volatile bool   display_ready       = true;
+static uint32_t display_limit_timer = 0;
 
 void handle_display_update(int32_t result, uint32_t userdata);
 
@@ -33,32 +36,23 @@ int main(void)
   communications_init(BOOTLOADER_ADDRESS);
   bootloader_init();
 
-  uint8_t r = 0;
-  uint8_t g = 0;
-  uint8_t b = 128;
-
-  for (uint8_t i = 0; i < LED_COUNT; ++i)
-  {
-    set_pattern_rgb(PATTERN_HEARTBEAT, i, r, g, b);
-    uint8_t tmp = b;
-    b           = g;
-    g           = r;
-    r           = tmp;
-  }
+  display_set_boot_pattern();
+  display_limit_timer = 0;
 
   while (1)
   {
-    communications_update();
-    if (display_ready)
+    if (display_ready && ((get_milliseconds() - display_limit_timer) > DISPLAY_LIMIT_MS))
     {
       display_ready = false;
       display_update(handle_display_update);
     }
+    communications_update();
     bootloader_update();
   }
 }
 
 void handle_display_update(int32_t result, uint32_t userdata)
 {
-  display_ready = true;
+  display_ready       = true;
+  display_limit_timer = get_milliseconds();
 }

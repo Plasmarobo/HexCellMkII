@@ -7,7 +7,11 @@
 #include "message_protocol.h"
 #include "reset.h"
 
+#include <stddef.h>
+#include <stdint.h>
+
 #define BOOTLOADER_FLAG_SENDING (1)
+#define BOOT_ADDRESS_INVALID (0xFFFFFFFF)
 
 typedef enum
 {
@@ -45,6 +49,8 @@ void bootloader_init(void)
   {
     boot_state = BOOT_STATE_JUMP_TO_APP;
   }
+  // DEV OVERRIDE: force boot state to listen for debugging purposes
+  boot_state = BOOT_STATE_LISTEN;
 }
 
 void bootloader_update(void)
@@ -76,7 +82,28 @@ void bootloader_update(void)
 
       break;
     case BOOT_STATE_JUMP_TO_APP:
-      boot_jump_to_image((uint32_t*)_ORIGIN_APP);
+      {
+        // Read app metadata
+        const image_metadata_t* app_meta = get_image_metadata(IMAGE_MAGIC_APP);
+        if ((NULL != app_meta) && (IMAGE_MAGIC_APP == app_meta->image_magic))
+        {
+          if (BOOT_ADDRESS_INVALID != app_meta->boot_address)
+          {
+            // Metadata is telling us where to jump to, trust it
+            boot_jump_to_image((uint32_t*)app_meta->boot_address);
+          }
+          else
+          {
+            // Jump to where we think the app should begin
+            boot_jump_to_image((uint32_t*)_ORIGIN_APP);
+          }
+        }
+        else
+        {
+          // Todo: set error pattern
+          boot_state = BOOT_STATE_LISTEN;
+        }
+      }
       break;
     default:
       break;

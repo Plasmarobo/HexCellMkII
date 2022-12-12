@@ -47,7 +47,7 @@ void MX_SPI2_Init(void)
   hspi2.Instance               = SPI2;
   hspi2.Init.Mode              = SPI_MODE_MASTER;
   hspi2.Init.Direction         = SPI_DIRECTION_2LINES;
-  hspi2.Init.DataSize          = SPI_DATASIZE_4BIT;
+  hspi2.Init.DataSize          = SPI_DATASIZE_8BIT;
   hspi2.Init.CLKPolarity       = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase          = SPI_PHASE_1EDGE;
   hspi2.Init.NSS               = SPI_NSS_SOFT;
@@ -57,7 +57,7 @@ void MX_SPI2_Init(void)
   hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
   hspi2.Init.CRCPolynomial     = 7;
   hspi2.Init.CRCLength         = SPI_CRC_LENGTH_DATASIZE;
-  hspi2.Init.NSSPMode          = SPI_NSS_PULSE_ENABLE;
+  hspi2.Init.NSSPMode          = SPI_NSS_PULSE_DISABLE;
   if (HAL_SPI_Init(&hspi2) != HAL_OK)
   {
     Error_Handler();
@@ -114,7 +114,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     HAL_NVIC_SetPriority(SPI2_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(SPI2_IRQn);
     /* USER CODE BEGIN SPI2_MspInit 1 */
-
+    operation_callback = NULL;
     /* USER CODE END SPI2_MspInit 1 */
   }
 }

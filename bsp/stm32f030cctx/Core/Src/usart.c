@@ -642,7 +642,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart)
   {
     if ((huart == uart_state_data[i].huart) && (NULL != uart_state_data[i].tx_cb))
     {
-      uart_state_data[i].tx_cb(UART_SUCCESS, i);
+      uart_state_data[i].tx_cb(COMM_SUCCESS, i);
       uart_state_data[i].tx_cb = NULL;
       return;
     }
@@ -659,7 +659,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
   {
     if ((huart == uart_state_data[i].huart) && (NULL != uart_state_data[i].rx_cb))
     {
-      uart_state_data[i].rx_cb(UART_SUCCESS, i);
+      uart_state_data[i].rx_cb(COMM_SUCCESS, i);
       uart_state_data[i].rx_cb = NULL;
       return;
     }
@@ -672,13 +672,13 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart)
   {
     if ((huart == uart_state_data[i].huart) && (NULL != uart_state_data[i].rx_cb))
     {
-      uart_state_data[i].rx_cb(UART_ERR_COMM, 0);
+      uart_state_data[i].rx_cb(UART_ERR_COMM, i);
       uart_state_data[i].rx_cb = NULL;
       return;
     }
     if ((huart == uart_state_data[i].huart) && (NULL != uart_state_data[i].tx_cb))
     {
-      uart_state_data[i].tx_cb(UART_ERR_COMM, 0);
+      uart_state_data[i].tx_cb(UART_ERR_COMM, i);
       uart_state_data[i].tx_cb = NULL;
       return;
     }

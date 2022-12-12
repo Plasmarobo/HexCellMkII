@@ -23,8 +23,8 @@
 #include <stdint.h>
 
 // Warning: this will consume more than 3k per point of depth
-#define TX_QUEUE_LENGTH (4)
-#define RX_QUEUE_LENGTH (12)
+#define TX_QUEUE_LENGTH (3)
+#define RX_QUEUE_LENGTH (4)
 
 typedef enum
 {
@@ -35,6 +35,7 @@ typedef enum
   COMM_ERROR_INTERNAL_MESSAGE_DROP,
   COMM_ERROR_INVALID_STATUS,
   COMM_ERROR_INVALID_LENGTH,
+  COMM_ERROR_HW_ERROR,
 } comm_error_code_t;
 
 typedef enum

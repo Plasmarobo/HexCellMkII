@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file      bsp_startup.s
+  * @file      startup_stm32f030xc.s
   * @author    MCD Application Team
   * @brief     STM32F030xc/STM32F030xb devices vector table for GCC toolchain.
   *            This module performs:

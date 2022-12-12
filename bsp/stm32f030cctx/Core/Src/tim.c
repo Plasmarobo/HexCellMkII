@@ -25,8 +25,8 @@
 #include "stm32f0xx_it.h"
 
 /* USER CODE BEGIN 0 */
-static volatile uint32_t millisecond_counter;
-static volatile uint64_t microsecond_counter;
+static volatile uint32_t millisecond_accumulator;
+static volatile uint64_t microsecond_accumulator;
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim7;
@@ -153,29 +153,63 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 /* USER CODE BEGIN 1 */
 void time_init(void)
 {
-  millisecond_counter = 0;
-  microsecond_counter = 0;
+  millisecond_accumulator = 0;
+  microsecond_accumulator = 0;
+  HAL_TIM_Base_Start_IT(&htim7);
+  HAL_TIM_Base_Start_IT(&htim14);
 }
 
 uint32_t get_milliseconds(void)
 {
-  return millisecond_counter & __HAL_TIM_GET_COUNTER(&htim14);
+  uint16_t tvalue = __HAL_TIM_GET_COUNTER(&htim14);
+  return millisecond_accumulator + tvalue;
 }
 
 uint64_t get_microseconds(void)
 {
-  return microsecond_counter & __HAL_TIM_GET_COUNTER(&htim7);
+  uint16_t tvalue = __HAL_TIM_GET_COUNTER(&htim7);
+  return microsecond_accumulator + tvalue;
 }
 
 void handle_microsecond_overflow(void)
 {
   // Timer is rigged to rollover at 65535
-  microsecond_counter <<= 16;
+  microsecond_accumulator += (1 << 16);
 }
 
 void handle_millisecond_overflow(void)
 {
   // Timer is rigged to rollover at 65535
-  millisecond_counter <<= 16;
+  millisecond_accumulator += (1 << 16);
 }
 /* USER CODE END 1 */
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM1 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM1)
+  {
+    HAL_IncTick();
+  }
+  else if (htim->Instance == TIM7)
+  {
+    handle_microsecond_overflow();
+  }
+  else if (htim->Instance == TIM14)
+  {
+    handle_millisecond_overflow();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}

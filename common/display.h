@@ -27,6 +27,7 @@ typedef enum
   PATTERN_HEARTBEAT,
   PATTERN_BLINK,
   PATTERN_SOS,
+  PATTERN_CHASE, // Set all leds as chase: each led will be calculated independently
   PATTERN_MAX,
 } pattern_t;
 
@@ -43,6 +44,9 @@ void display_set_fast_hsv(uint8_t start, uint8_t count, uint8_t* values);
 void display_clear(void);
 
 void set_pattern_rgb(pattern_t pattern, uint8_t led, uint8_t r, uint8_t g, uint8_t b);
+void set_pattern_rgb_ex(pattern_t pattern, uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint32_t period_ms, int32_t offset_ms);
 void clear_pattern(uint8_t led);
+
+void display_set_boot_pattern(void);
 
 #endif // DISPLAY_H

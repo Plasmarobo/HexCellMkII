@@ -1,0 +1,3 @@
+#!/bin/bash
+
+STM32F030CCX_OPT_BYTES=

@@ -22,7 +22,7 @@ void handle_error(uint32_t port, int32_t status)
 {
   if (NULL != port_data[port].callback)
   {
-    port_data[port].callback(COMM_ERR_UNKNOWN, 0);
+    port_data[port].callback(port, status);
   }
 }
 

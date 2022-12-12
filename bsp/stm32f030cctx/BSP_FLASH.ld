@@ -77,15 +77,21 @@ _LENGTH_BL = 32K;
 /* Rest of flash */
 _LENGTH_APP = _LENGTH_FLASH - (_LENGTH_META + _LENGTH_BL + _LENGTH_META);
 
-_ORIGIN_BL = _FLASH_ORIGIN;
+_ORIGIN_BL = _ORIGIN_FLASH;
 _ORIGIN_BL_META = (_ORIGIN_BL + _LENGTH_BL);
 _ORIGIN_APP = _ORIGIN_BL + _LENGTH_BL + _LENGTH_META;
 _ORIGIN_APP_META = _ORIGIN_APP + _LENGTH_APP;
 
 /* Should track the size of the reset structure */
 _LENGTH_RAM_NOLOAD = 12;
-_LENGTH_RAM_LOAD = (_RAM_LENGTH - _LENGTH_RAM_NOLOAD);
-_ORIGIN_RAM_NOLOAD = _RAM_ORIGIN + _LENGTH_RAM_LOAD;
+_LENGTH_RAM_LOAD = (_LENGTH_RAM_ALL - _LENGTH_RAM_NOLOAD);
+_ORIGIN_RAM_NOLOAD = _ORIGIN_RAM + _LENGTH_RAM_LOAD;
+
+/* Highest address of the user mode stack */
+_estack = _ORIGIN_RAM + _LENGTH_RAM_ALL;    /* end of RAM */
+/* Generate a link error if heap and stack don't fit into RAM */
+_Min_Heap_Size = 0x0;      /* required amount of heap  */
+_Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY

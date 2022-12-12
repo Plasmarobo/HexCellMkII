@@ -26,6 +26,7 @@
 #include "gpio.h"
 #include "message_protocol.h"
 #include "report.h"
+
 #include "stm32f0xx_hal.h"
 
 #include "FIFO.h"
@@ -66,19 +67,26 @@ static port_description_t get_own_description(void)
 }
 
 // Handle unsolicited data
-void handle_listen(int32_t port, uint32_t buffer_address)
+void handle_listen(int32_t port, uint32_t status)
 {
   if (port < PORT_MAX)
   {
-    // Copy buffer to rx queue
-    if (!fifo_add(receive_queue.queue, &port_buffer[port]))
+    if (COMM_SUCCESS == status)
     {
-      // Queue failure, all we can do is drop the message
-      report_error(RT_WARNING, COMM_ERROR_INCOMING_MESSAGE_DROP, 0, port);
+      // Copy buffer to rx queue
+      if (!fifo_add(receive_queue.queue, &port_buffer[port]))
+      {
+        // Queue failure, all we can do is drop the message
+        report_error(RT_WARNING, COMM_ERROR_INCOMING_MESSAGE_DROP, 0, port);
+      }
+      port_buffer[port].header.length = 0;
+      listen(port, &port_buffer[port], handle_listen);
+    }
+    else
+    {
+      report_error(RT_ERROR, COMM_ERROR_HW_ERROR, status, port);
     }
   }
-  port_buffer[port].header.length = 0;
-  listen(port, &port_buffer[port], handle_listen);
 }
 
 void handle_connect_reply(int32_t port, uint32_t buffer_address)
@@ -107,7 +115,7 @@ void handle_connect_reply(int32_t port, uint32_t buffer_address)
         },
         .origin_port = port,
       };
-      memcpy(opt.msg.data, (uint8_t*)&port_description[port], sizeof(port_description_t));
+      memcpy(opt.msg.data, (uint8_t*)&(port_description[port]), sizeof(port_description_t));
       if (!fifo_add(receive_queue.queue, &opt))
       {
         report_error(RT_WARNING, COMM_ERROR_INTERNAL_MESSAGE_DROP, 0, PORT_MAX);
@@ -151,10 +159,20 @@ void communications_init(uint32_t address)
   self_address = address;
   for (uint8_t i = PORT_AO; i < PORT_MAX; ++i)
   {
-    send_queue[i].queue = fifo_create_static(&send_queue[i].queue_impl, send_queue[i].queue_buffer, TX_QUEUE_LENGTH, sizeof(send_opt_t));
-    listen(i, &port_buffer[i], handle_listen);
+    send_queue[i].queue = fifo_create_static(&(send_queue[i].queue_impl),
+                                             send_queue[i].queue_buffer,
+                                             TX_QUEUE_LENGTH,
+                                             sizeof(send_opt_t));
+    if (NULL != send_queue[i].queue)
+    {
+      listen(i, &(port_buffer[i]), handle_listen);
+    }
   }
   receive_queue.queue = fifo_create_static(&receive_queue.queue_impl, receive_queue.queue_buffer, RX_QUEUE_LENGTH, sizeof(receive_opt_t));
+  if (NULL == receive_queue.queue)
+  {
+    Error_Handler();
+  }
   on_connect_disconnect(connect_disconnect_callback);
 }
 

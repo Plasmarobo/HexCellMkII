@@ -14,15 +14,16 @@
 // LOW pattern: 0.8us HIGH, 0.6us LOW
 // RST pattern: 1.25us low
 
-// Our SPI is clocked at 3.125MHz
-// Each bit has a period of 320ns
+// Our SPI is clocked at 3.0MHz
+// Each uS is therefore 3 bits
+// Each bit has a period of 330ns
 // High = 100
 // Low = 110
 // Rst = 000
-// Need 50us of 0 to reset = 157 bits = 20 bytes
+// Need 50us of 0 to reset = 150 bits = 19
 
 #define BITS_PER_BIT (3)
-#define RST_BYTES (21)
+#define RST_BYTES (19)
 // One byte per color channel
 #define BYTES_PER_LED (BITS_PER_BIT * 3)
 #define CODEPOINT_LENGTH (RST_BYTES + (BYTES_PER_LED * LED_COUNT))
@@ -167,6 +168,6 @@ void set_hsv(uint8_t address, uint16_t h, uint8_t s, uint8_t v)
 
 void update_leds(opt_callback_t cb)
 {
-  HAL_SPI_Transmit_DMA(&hspi2, codepoints, CODEPOINT_LENGTH);
+  // HAL_SPI_Transmit_DMA(&hspi2, codepoints, CODEPOINT_LENGTH);
   spi2_send(codepoints, CODEPOINT_LENGTH, cb);
 }

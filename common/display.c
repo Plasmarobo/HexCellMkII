@@ -25,7 +25,6 @@
 typedef struct
 {
   pattern_t pattern;  // Pattern
-  uint32_t  substate; // Pattern-defined substate
   uint32_t  timer;    // Pattern-defined timer in ticks
   uint32_t  period;   // Pattern-defined period in ticks
   uint8_t   led_r;
@@ -45,10 +44,10 @@ static pattern_data_t patterns[LED_COUNT];
 
 void pattern_dispatch(uint8_t led_index, pattern_data_t* pattern_ref)
 {
-  uint32_t time = get_milliseconds();
   if (NULL != pattern_ref)
   {
-    uint32_t scale_factor = ((time - pattern_ref->timer) << 8) / pattern_ref->period;
+    // Shift into 255-0 space as a fixed-point (1.0-0.0) value
+    uint32_t delta_ms = (get_milliseconds() - pattern_ref->timer);
     switch (pattern_ref->pattern)
     {
       case PATTERN_SOLID:
@@ -57,68 +56,44 @@ void pattern_dispatch(uint8_t led_index, pattern_data_t* pattern_ref)
         break;
       case PATTERN_BREATHE:
         {
-          switch (pattern_ref->substate)
+          uint8_t substate = (delta_ms * 8) / pattern_ref->period;
+          switch (substate)
           {
             case 0:
               {
-                // Fade in
+                // Fade in for 1 period
                 uint8_t r, g, b;
                 // Gives a value between 0-255 in periods
-                r = (scale_factor * pattern_ref->led_r) >> 8;
-                g = (scale_factor * pattern_ref->led_g) >> 8;
-                b = (scale_factor * pattern_ref->led_b) >> 8;
+                r = (delta_ms * (uint32_t)pattern_ref->led_r) / pattern_ref->period;
+                g = (delta_ms * (uint32_t)pattern_ref->led_g) / pattern_ref->period;
+                b = (delta_ms * (uint32_t)pattern_ref->led_b) / pattern_ref->period;
 
-                if (scale_factor >= 255)
-                {
-                  // Advance to hold
-                  pattern_ref->substate = 1;
-                  pattern_ref->timer    = time;
-                }
-                else
-                {
-                  display_set_rgb(led_index, r, g, b);
-                }
+                display_set_rgb(led_index, r, g, b);
                 break;
               }
             case 1:
-              // Hold for 2 period
-              display_set_rgb(led_index, pattern_ref->led_r, pattern_ref->led_g, pattern_ref->led_b);
-              if (scale_factor >= 512)
-              {
-                pattern_ref->substate = 2;
-                pattern_ref->timer    = time;
-              }
-              break;
             case 2:
-              {
-                // Fade out
-                uint8_t r, g, b;
-                r = (pattern_ref->led_r * (255 - scale_factor)) >> 8;
-                g = (pattern_ref->led_g * (255 - scale_factor)) >> 8;
-                b = (pattern_ref->led_b * (255 - scale_factor)) >> 8;
-
-                if (scale_factor >= 255)
-                {
-                  pattern_ref->substate = 3;
-                  pattern_ref->timer    = time;
-                }
-                else
-                {
-                  display_set_rgb(led_index, r, g, b);
-                }
-              }
+              // Hold for 2 periods
+              display_set_rgb(led_index, pattern_ref->led_r, pattern_ref->led_g, pattern_ref->led_b);
               break;
             case 3:
-              display_set_rgb(led_index, 0, 0, 0);
-              if (scale_factor >= 255)
               {
-                pattern_ref->substate = 0;
-                pattern_ref->timer    = time;
+                // Fade out for 1 period
+                uint8_t r, g, b;
+                // As delta_ms approaches period, scaling factor approaches 255
+                uint32_t scaling_factor = (delta_ms << 8) / pattern_ref->period;
+                r                       = (pattern_ref->led_r * scaling_factor) >> 8;
+                g                       = (pattern_ref->led_g * scaling_factor) >> 8;
+                b                       = (pattern_ref->led_b * scaling_factor) >> 8;
+                display_set_rgb(led_index, r, g, b);
               }
               break;
+            case 4:
+              // Hold off for 1 period
+              display_set_rgb(led_index, 0, 0, 0);
+              break;
             default:
-              pattern_ref->substate = 0;
-              pattern_ref->timer    = time;
+              pattern_ref->timer = get_milliseconds();
               break;
           }
         }
@@ -127,30 +102,31 @@ void pattern_dispatch(uint8_t led_index, pattern_data_t* pattern_ref)
         {
           // Calculate the position in the period
           // ON - OFF - ON - OFF - Rest (4)
-          if ((0 == pattern_ref->substate) || (2 == pattern_ref->substate))
+          uint8_t substate = (delta_ms * 8) / pattern_ref->period;
+          switch (substate)
           {
-            display_set_rgb(led_index, pattern_ref->led_r, pattern_ref->led_g, pattern_ref->led_b);
-          }
-          else
-          {
-            display_set_rgb(led_index, 0, 0, 0);
-          }
-
-          if (scale_factor >= 32)
-          {
-            ++pattern_ref->substate;
-            pattern_ref->timer = time;
-            if (7 <= pattern_ref->substate)
-            {
-              pattern_ref->substate = 0;
-            }
+            case 0:
+            case 2:
+              display_set_rgb(led_index, pattern_ref->led_r, pattern_ref->led_g, pattern_ref->led_b);
+              break;
+            case 1:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+              display_set_rgb(led_index, 0, 0, 0);
+              break;
+            default:
+              pattern_ref->timer = get_milliseconds();
+              break;
           }
         }
         break;
       case PATTERN_BLINK:
         {
           // ON - OFF
-          if ((1 == pattern_ref->substate))
+          if (delta_ms < (pattern_ref->period / 2))
           {
             display_set_rgb(led_index, pattern_ref->led_r, pattern_ref->led_g, pattern_ref->led_b);
           }
@@ -159,14 +135,9 @@ void pattern_dispatch(uint8_t led_index, pattern_data_t* pattern_ref)
             display_set_rgb(led_index, 0, 0, 0);
           }
 
-          if (scale_factor >= 64)
+          if (delta_ms >= (pattern_ref->period))
           {
-            ++pattern_ref->substate;
-            pattern_ref->timer = time;
-            if (pattern_ref->substate > 1)
-            {
-              pattern_ref->substate = 0;
-            }
+            pattern_ref->timer = get_milliseconds();
           }
         }
         break;
@@ -174,7 +145,8 @@ void pattern_dispatch(uint8_t led_index, pattern_data_t* pattern_ref)
         {
           // ---___--- Rest ()
           const uint32_t mask = 0b0001010100111011101110010101;
-          if ((1 << pattern_ref->substate) & mask)
+          uint8_t        substate = (delta_ms * 32) / pattern_ref->period;
+          if ((1 << substate) & mask)
           {
             display_set_rgb(led_index, pattern_ref->led_r, pattern_ref->led_g, pattern_ref->led_b);
           }
@@ -183,18 +155,30 @@ void pattern_dispatch(uint8_t led_index, pattern_data_t* pattern_ref)
             display_set_rgb(led_index, 0, 0, 0);
           }
 
-          if (scale_factor >= 32)
+          if (substate >= 32)
           {
-            ++pattern_ref->substate;
-            pattern_ref->timer = time;
-            if (pattern_ref->substate > 31)
-            {
-              pattern_ref->substate = 0;
-            }
+            pattern_ref->timer = get_milliseconds();
           }
         }
         break;
-      case PATTERN_NONE: // Don't mess with
+      case PATTERN_CHASE:
+        {
+          uint32_t period_per_led = pattern_ref->period / LED_COUNT;
+          uint8_t  active_led     = delta_ms / period_per_led;
+          if (led_index == active_led)
+          {
+            display_set_rgb(led_index, pattern_ref->led_r, pattern_ref->led_g, pattern_ref->led_b);
+          }
+          else
+          {
+            display_set_rgb(led_index, 0, 0, 0);
+          }
+          if (delta_ms >= pattern_ref->period)
+          {
+            pattern_ref->timer = get_milliseconds();
+          }
+        }
+      case PATTERN_NONE: // Don't mess with set value
         break;
       default:
         display_set_rgb(led_index, 0, 0, 0);
@@ -273,10 +257,16 @@ void set_pattern_rgb(pattern_t pattern, uint8_t led, uint8_t r, uint8_t g, uint8
     patterns[led].led_r   = r;
     patterns[led].led_g   = g;
     patterns[led].led_b   = b;
-    // Only used by breathe for now
     patterns[led].timer  = get_milliseconds();
     patterns[led].period = PATTERN_PERIOD_DEFAULT_MS;
   }
+}
+
+void set_pattern_rgb_ex(pattern_t pattern, uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint32_t period_ms, int32_t offset_ms)
+{
+  set_pattern_rgb(pattern, led, r, g, b);
+  patterns[led].period = period_ms;
+  patterns[led].timer  = get_milliseconds() + offset_ms;
 }
 
 void clear_pattern(uint8_t led)
@@ -284,5 +274,26 @@ void clear_pattern(uint8_t led)
   if (led < LED_COUNT)
   {
     patterns[led].pattern = PATTERN_NONE;
+    patterns[led].timer   = get_milliseconds();
+    patterns[led].led_r   = 0;
+    patterns[led].led_g   = 0;
+    patterns[led].led_b   = 0;
+    patterns[led].period  = PATTERN_PERIOD_DEFAULT_MS;
+  }
+}
+
+void display_set_boot_pattern(void)
+{
+  uint8_t r = 0;
+  uint8_t g = 128;
+  uint8_t b = 0;
+
+  for (uint8_t i = 0; i < LED_COUNT; ++i)
+  {
+    set_pattern_rgb_ex(PATTERN_BLINK, i, r, g, b, 1000, -100 * i);
+    uint8_t tmp = b;
+    b           = g;
+    g           = r;
+    r           = tmp;
   }
 }
