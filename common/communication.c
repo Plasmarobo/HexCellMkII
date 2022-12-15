@@ -80,7 +80,7 @@ void handle_listen(int32_t port, uint32_t status)
         report_error(RT_WARNING, COMM_ERROR_INCOMING_MESSAGE_DROP, 0, port);
       }
       port_buffer[port].header.length = 0;
-      listen(port, &port_buffer[port], handle_listen);
+      // listen(port, &port_buffer[port], handle_listen);
     }
     else
     {

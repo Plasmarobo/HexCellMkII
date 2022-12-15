@@ -18,10 +18,13 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "FreeRTOS.h"
-#include "task.h"
-#include "main.h"
+#include "cmsis_compiler.h"
 #include "cmsis_os.h"
+#include "task.h"
+
+#include "FreeRTOS.h"
+
+#include "display_task.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -70,7 +73,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, Stack
 void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName);
 
 /* USER CODE BEGIN 4 */
-__weak void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
+__WEAK void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char* pcTaskName)
 {
    /* Run time stack overflow checking is performed if
    configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
@@ -137,6 +140,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  display_task_init();
   /* USER CODE END RTOS_THREADS */
 
 }

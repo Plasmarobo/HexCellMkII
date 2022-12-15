@@ -104,7 +104,7 @@ firmware_update_metadata_t get_capability(uint32_t magic_number)
     capability.image_metadata.version_patch     = 0;
     capability.image_metadata.hardware_revision = HW_VERSION;
     capability.image_metadata.hardware_id       = HARDWARE_ADDRESS_INVALID;
-    capability.image_metadata.boot_address      = (uint32_t)_ORIGIN_BL;
+    capability.image_metadata.boot_address      = ORIGIN_BL;
   }
   // Align this to the next-smallest multiple of 8 bytes
   capability.chunk_size = COMM_BUFFER_LENGTH - sizeof(message_header_t);
@@ -112,13 +112,13 @@ firmware_update_metadata_t get_capability(uint32_t magic_number)
   switch (magic_number)
   {
     case IMAGE_MAGIC_BL:
-      capability.image_size = (uint32_t)_LENGTH_BL;
+      capability.image_size = LENGTH_BL;
       break;
     case IMAGE_MAGIC_APP:
-      capability.image_size = (uint32_t)_LENGTH_APP;
+      capability.image_size = LENGTH_APP;
       break;
     case IMAGE_MAGIC_META:
-      capability.image_size = (uint32_t)_LENGTH_META;
+      capability.image_size = LENGTH_META;
       break;
     default:
       capability.image_size = 0;
@@ -148,14 +148,14 @@ const image_metadata_t* get_image_metadata(uint32_t image_type)
   switch (image_type)
   {
     case IMAGE_MAGIC_BL:
-      metadata = (const image_metadata_t*)_ORIGIN_BL_META;
+      metadata = (const image_metadata_t*)ORIGIN_BL_META;
       break;
     case IMAGE_MAGIC_META:
       // Can't get metadata data section: it doesn't exist
       break;
     case IMAGE_MAGIC_APP: // Intentional fallthrough
     default:
-      metadata = (const image_metadata_t*)_ORIGIN_APP_META;
+      metadata = (const image_metadata_t*)ORIGIN_APP_META;
       break;
   }
   return metadata;
@@ -167,10 +167,10 @@ static uint32_t get_meta_address(uint32_t image_magic)
   switch (image_magic)
   {
     case IMAGE_MAGIC_BL:
-      page_address = _ORIGIN_BL_META;
+      page_address = ORIGIN_BL_META;
       break;
     case IMAGE_MAGIC_APP:
-      page_address = _ORIGIN_APP_META;
+      page_address = ORIGIN_APP_META;
       break;
     default:
       break;
@@ -207,7 +207,7 @@ void set_image_metadata(image_metadata_t data, opt_callback_t cb)
     HAL_FLASH_Unlock();
 
     erase_data.PageAddress = get_meta_address(data.image_magic);
-    erase_data.NbPages     = _LENGTH_META / PAGE_SIZE;
+    erase_data.NbPages     = LENGTH_META / PAGE_SIZE;
     erase_data.TypeErase   = FLASH_TYPEERASE_PAGES;
     fwu_state              = FWU_ERASE_METADATA;
     operation_callback     = cb;
@@ -303,12 +303,12 @@ static void firmware_update_handle_state(message_t* host_message)
             switch (incoming_fw_update.image_metadata.image_magic)
             {
               case IMAGE_MAGIC_APP:
-                flash_address      = _ORIGIN_APP;
-                erase_data.NbPages = _LENGTH_APP / PAGE_SIZE;
+                flash_address      = ORIGIN_APP;
+                erase_data.NbPages = LENGTH_APP / PAGE_SIZE;
                 break;
               case IMAGE_MAGIC_BL:
-                flash_address      = _ORIGIN_BL;
-                erase_data.NbPages = _LENGTH_BL / PAGE_SIZE;
+                flash_address      = ORIGIN_BL;
+                erase_data.NbPages = LENGTH_BL / PAGE_SIZE;
                 break;
               case IMAGE_MAGIC_META:    // Intentional fallthrough
               case IMAGE_MAGIC_EMPTY:   // Intentional fallthrough
@@ -351,12 +351,12 @@ static void firmware_update_handle_state(message_t* host_message)
       switch (incoming_fw_update.image_metadata.image_magic)
       {
         case IMAGE_MAGIC_APP:
-          flash_address      = _ORIGIN_APP;
-          erase_data.NbPages = _LENGTH_APP / PAGE_SIZE;
+          flash_address      = ORIGIN_APP;
+          erase_data.NbPages = LENGTH_APP / PAGE_SIZE;
           break;
         case IMAGE_MAGIC_BL:
-          flash_address      = _ORIGIN_BL;
-          erase_data.NbPages = _LENGTH_BL / PAGE_SIZE;
+          flash_address      = ORIGIN_BL;
+          erase_data.NbPages = LENGTH_BL / PAGE_SIZE;
           break;
         case IMAGE_MAGIC_META:    // Intentional fallthrough
         case IMAGE_MAGIC_EMPTY:   // Intentional fallthrough

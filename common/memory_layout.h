@@ -16,12 +16,12 @@
 #include <stdint.h>
 
 // Assigned from linker, or defined in the BSP
-extern const uintptr_t _ORIGIN_BL;
-extern const uint32_t  _LENGTH_BL;
-extern const uintptr_t _ORIGIN_BL_META;
-extern const uintptr_t _ORIGIN_APP;
-extern const uint32_t  _LENGTH_APP;
-extern const uintptr_t _ORIGIN_APP_META;
-extern const uint32_t  _LENGTH_META;
+extern const uintptr_t ORIGIN_BL;
+extern const uint32_t  LENGTH_BL;
+extern const uintptr_t ORIGIN_BL_META;
+extern const uintptr_t ORIGIN_APP;
+extern const uint32_t  LENGTH_APP;
+extern const uintptr_t ORIGIN_APP_META;
+extern const uint32_t  LENGTH_META;
 
 #endif // MEMORY_LAYOUT_H

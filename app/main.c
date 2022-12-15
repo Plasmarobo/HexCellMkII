@@ -1,5 +1,7 @@
 #include "bsp.h"
 
+#include "cmsis_os.h"
+
 void main(void)
 {
   board_init();
@@ -19,8 +21,4 @@ void main(void)
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
-}
-
-void MX_FREERTOS_Init(void)
-{
 }

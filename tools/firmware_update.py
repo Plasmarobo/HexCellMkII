@@ -1,4 +1,4 @@
-from comm.serial_manage import SerialManager
+from comm.serial_manager import SerialManager
 from comm.message_parser import Message
 import argparse
 
@@ -14,6 +14,9 @@ def main():
   serial = SerialManager(port=args.port)
 
   while True:
+    msg = serial.get_message()
+    if msg != None:
+      
 
   return 0
 

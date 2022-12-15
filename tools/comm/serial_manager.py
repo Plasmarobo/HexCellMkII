@@ -48,13 +48,13 @@ class SerialManager:
       parity=serial.PARITY_ODD,
       stopbits=serial.STOPBITS_ONE,
       bytesize=serial.EIGHTBITS,
-      timout=ser.timeout = 1)
+      timeout= 1)
     self.incoming_queue = Queue(maxsize=0)
     self.outgoing_queue = Queue(maxsize=0)
     try:
       self.current_port.open()
-    except Exception, e:
-      print "Error opening port: " + str(e)
+    except Exception as e:
+      print("Error opening port: " + str(e))
       exit()
 
     if self.current_port.isOpen():
@@ -67,8 +67,8 @@ class SerialManager:
         self.consumer = Thread(target=serial_write_thread, args=(self.current_port, self.outgoing_queue))
         self.consumer.setDaemon(True)
         self.consumer.start()
-      except Exception, e:
-        print "Error starting serial thread: " + str(e)
+      except Exception as e:
+        print("Error starting serial thread: " + str(e))
         exit()
 
     def send_message(self, msg):
