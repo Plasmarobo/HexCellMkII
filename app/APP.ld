@@ -48,51 +48,7 @@
 **
 *****************************************************************************
 */
-
-/* Entry Point */
-ENTRY(Reset_Handler)
-
-/* Highest address of the user mode stack */
-_estack = ORIGIN(RAM) + LENGTH(RAM);    /* end of RAM */
-/* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0x0;      /* required amount of heap  */
-_Min_Stack_Size = 0x400; /* required amount of stack */
-
-_ORIGIN_FLASH = 0x8000000;
-_LENGTH_FLASH = 256K;
-_LAST_FLASH = _ORIGIN_FLASH + _LENGTH_FLASH - 1;
-_LENGTH_RAM_ALL = 32K;
-_ORIGIN_RAM = 0x20000000;
-_ORIGIN_SYSMEM = 0x1FFF0000;
-_PAGE_LENGTH = 2K;
-
-/* aligned to page for simplicity */
-_LENGTH_META = 2K;
-_LENGTH_BL = 32K;
-/* Rest of flash */
-_LENGTH_APP = _LENGTH_FLASH - (_LENGTH_META + _LENGTH_BL + _LENGTH_META);
-
-_ORIGIN_BL = _ORIGIN_FLASH;
-_ORIGIN_BL_META = (_ORIGIN_BL + _LENGTH_BL);
-_ORIGIN_APP = _ORIGIN_BL + _LENGTH_BL + _LENGTH_META;
-_ORIGIN_APP_META = _ORIGIN_APP + _LENGTH_APP;
-
-/* Should track the size of the reset structure */
-_LENGTH_RAM_NOLOAD = 12;
-_LENGTH_RAM_LOAD = (_LENGTH_RAM_ALL - _LENGTH_RAM_NOLOAD);
-_ORIGIN_RAM_NOLOAD = _ORIGIN_RAM + _LENGTH_RAM_LOAD;
-
-/* Specify the memory areas */
-MEMORY
-{
-RAM (xrw)      : ORIGIN = _ORIGIN_RAM, LENGTH = _LENGTH_RAM_ALL
-FLASH (rx)      : ORIGIN = _ORIGIN_FLASH, LENGTH = _LENGTH_FLASH
-FLASH_BL (rx)       : ORIGIN = _ORIGIN_BL, LENGTH = _LENGTH_BL
-FLASH_BL_META (rw)  : ORIGIN = _ORIGIN_BL_META, LENGTH = _LENGTH_META
-/* Ensure the vector table is aligned */
-FLASH_APP (rx)      : ORIGIN = _ORIGIN_APP, LENGTH = _LENGTH_APP
-FLASH_APP_META (rw) : ORIGIN = _ORIGIN_APP_META, LENGTH = _LENGTH_META
-}
+INCLUDE BSP_FLASH.ld
 
 /* Define output sections */
 SECTIONS
@@ -101,9 +57,10 @@ SECTIONS
   .isr_vector :
   {
     . = ALIGN(4);
+    _VECTOR_TABLE_LOCATION = .;
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } >FLASH
+  } >FLASH_APP
 
   /* The program code and other data goes into FLASH */
   .text :
@@ -120,7 +77,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH
+  } >FLASH_APP
 
   /* Constant data goes into FLASH */
   .rodata :
@@ -129,35 +86,43 @@ SECTIONS
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >FLASH
+  } >FLASH_APP
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH_APP
   .ARM : {
     __exidx_start = .;
     *(.ARM.exidx*)
     __exidx_end = .;
-  } >FLASH
+  } >FLASH_APP
 
   .preinit_array     :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
-  } >FLASH
+  } >FLASH_APP
   .init_array :
   {
     PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
-  } >FLASH
+  } >FLASH_APP
   .fini_array :
   {
     PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(SORT(.fini_array.*)))
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
-  } >FLASH
+  } >FLASH_APP
+
+  .app_meta :
+  {
+    . = ALIGN(8);
+    KEEP(*(.app_meta))
+    KEEP(*(.app_meta*))
+    . = ALIGN(8);
+  } >FLASH_APP_META
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
@@ -172,7 +137,7 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >RAM AT> FLASH
+  } >RAM AT> FLASH_APP
 
   
   /* Uninitialized data section */

@@ -54,8 +54,7 @@ _LENGTH_FLASH = 256K;
 _LAST_FLASH = _ORIGIN_FLASH + _LENGTH_FLASH - 1;
 _LENGTH_RAM_ALL = 32K;
 _ORIGIN_RAM = 0x20000000;
-_ORIGIN_SYSMEM = 0x1FFF0000;
-_PAGE_LENGTH = 2K;
+
 
 /************************************
 ***** Memory layout *****************

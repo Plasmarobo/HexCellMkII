@@ -57,6 +57,7 @@ SECTIONS
   .isr_vector :
   {
     . = ALIGN(4);
+    _VECTOR_TABLE_LOCATION = .;
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >FLASH_BL
@@ -115,6 +116,14 @@ SECTIONS
     PROVIDE_HIDDEN (__fini_array_end = .);
   } >FLASH_BL
 
+  .bootloader_meta :
+  {
+    . = ALIGN(8);
+    KEEP(*(.bootloader_meta))
+    KEEP(*(.bootloader_meta*))
+    . = ALIGN(8);
+  } >FLASH_BL_META
+
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
@@ -130,7 +139,6 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
   } >RAM AT> FLASH_BL
 
-  
   /* Uninitialized data section */
   . = ALIGN(4);
   .bss :
@@ -146,6 +154,15 @@ SECTIONS
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
   } >RAM
+
+   /* Not-loaded section of RAM - will not be written by the startup */
+  .noload_ram :
+  {
+    . = ALIGN(4);
+    *(.reset_breadcrumb)
+    *(.reset_breadcrumb*)
+    . = ALIGN(4);
+  } >RAM_NOLOAD
 
   /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack :

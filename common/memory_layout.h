@@ -23,5 +23,7 @@ extern const uintptr_t ORIGIN_APP;
 extern const uint32_t  LENGTH_APP;
 extern const uintptr_t ORIGIN_APP_META;
 extern const uint32_t  LENGTH_META;
+extern const uintptr_t ORIGIN_KEYSTORE;
+extern const uint32_t  LENGTH_KEYSTORE;
 
 #endif // MEMORY_LAYOUT_H

@@ -18,7 +18,9 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#ifdef HAL_ADC_MODULE_ENABLED
 #include "adc.h"
+#include "bsp.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -72,9 +74,6 @@ void MX_ADC1_Init(void)
 
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 {
-
-  if(adcHandle->Instance==ADC1)
-  {
   /* USER CODE BEGIN ADC1_MspInit 0 */
 
   /* USER CODE END ADC1_MspInit 0 */
@@ -100,15 +99,11 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 
   /* USER CODE BEGIN ADC1_MspInit 1 */
 
-  /* USER CODE END ADC1_MspInit 1 */
-  }
+    /* USER CODE END ADC1_MspInit 1 */
 }
 
 void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 {
-
-  if(adcHandle->Instance==ADC1)
-  {
   /* USER CODE BEGIN ADC1_MspDeInit 0 */
 
   /* USER CODE END ADC1_MspDeInit 0 */
@@ -120,9 +115,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
   /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
   /* USER CODE END ADC1_MspDeInit 1 */
-  }
 }
 
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
+#endif

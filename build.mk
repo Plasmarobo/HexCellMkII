@@ -27,20 +27,20 @@ $(info =================================  Build  ===============================
 %.o: %.c
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(notdir $(<:.c=.lst)) $< -o $@
 
-%.elf: $(OBJECTS)
+$(TARGET_NAME).elf: $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 
-%.hex: %.elf
+$(TARGET_NAME).hex: $(TARGET_NAME).elf
 	$(HEX) $< $@
 	
-%.bin: %.elf
+$(TARGET_NAME).bin: $(TARGET_NAME).elf
 	$(BIN) $< $@	
 	
-%.srec: %.elf
+$(TARGET_NAME).srec: $(TARGET_NAME).elf
 	$(CP) -O srec $< $@
 
-%.fwu: %.bin
+$(TARGET_NAME).fwu: $(TARGET_NAME).bin
 	python ../tools/image_builder.py -f $< -v $(FW_VERSION_MAJOR).$(FW_VERSION_MINOR).$(FW_VERSION_PATCH) -r $(HW_VERSION) -o $@
 
 $(BUILD_DIR):

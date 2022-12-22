@@ -24,26 +24,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#ifdef HAL_ADC_MODULE_ENABLED
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "stm32f1xx_hal.h"
 
-/* USER CODE BEGIN Includes */
+  /* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
+  /* USER CODE END Includes */
 
-extern ADC_HandleTypeDef hadc1;
+  extern ADC_HandleTypeDef hadc1;
 
-/* USER CODE BEGIN Private defines */
+  /* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
+  /* USER CODE END Private defines */
 
-void MX_ADC1_Init(void);
+  void MX_ADC1_Init(void);
 
-/* USER CODE BEGIN Prototypes */
+  /* USER CODE BEGIN Prototypes */
 
-/* USER CODE END Prototypes */
-
+  /* USER CODE END Prototypes */
+#endif
 #ifdef __cplusplus
 }
 #endif

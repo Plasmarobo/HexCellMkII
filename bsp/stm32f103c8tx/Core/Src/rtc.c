@@ -18,7 +18,10 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#ifdef HAL_RTC_MODULE_ENABLED
 #include "rtc.h"
+
+#include "bsp.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -125,3 +128,4 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
+#endif

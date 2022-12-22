@@ -18,7 +18,7 @@
 #define BROADCAST_ADDRESS (0)
 #define INVALID_ADDRESS (0xFFFFFFFF)
 
-#define MESSAGE_BUFFER_LENGTH (128)
+#define MESSAGE_BUFFER_LENGTH (64)
 
 typedef struct
 {

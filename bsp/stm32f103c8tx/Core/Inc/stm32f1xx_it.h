@@ -27,51 +27,54 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdbool.h>
+   /* USER CODE END Includes */
 
-/* USER CODE END Includes */
+   /* Exported types ------------------------------------------------------------*/
+   /* USER CODE BEGIN ET */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+   /* USER CODE END ET */
 
-/* USER CODE END ET */
+   /* Exported constants --------------------------------------------------------*/
+   /* USER CODE BEGIN EC */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
+   /* USER CODE END EC */
 
-/* USER CODE END EC */
+   /* Exported macro ------------------------------------------------------------*/
+   /* USER CODE BEGIN EM */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+   /* USER CODE END EM */
 
-/* USER CODE END EM */
+   /* Exported functions prototypes ---------------------------------------------*/
+   void NMI_Handler(void);
+   void HardFault_Handler(void);
+   void MemManage_Handler(void);
+   void BusFault_Handler(void);
+   void UsageFault_Handler(void);
+   void SVC_Handler(void);
+   void DebugMon_Handler(void);
+   void PendSV_Handler(void);
+   void SysTick_Handler(void);
+   void RTC_IRQHandler(void);
+   void FLASH_IRQHandler(void);
+   void DMA1_Channel1_IRQHandler(void);
+   void DMA1_Channel2_IRQHandler(void);
+   void DMA1_Channel3_IRQHandler(void);
+   void DMA1_Channel4_IRQHandler(void);
+   void DMA1_Channel5_IRQHandler(void);
+   void DMA1_Channel6_IRQHandler(void);
+   void DMA1_Channel7_IRQHandler(void);
+   void USB_HP_CAN1_TX_IRQHandler(void);
+   void USB_LP_CAN1_RX0_IRQHandler(void);
+   void SPI1_IRQHandler(void);
+   void USART1_IRQHandler(void);
+   void USART2_IRQHandler(void);
+   void USART3_IRQHandler(void);
+   /* USER CODE BEGIN EFP */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void NMI_Handler(void);
-void HardFault_Handler(void);
-void MemManage_Handler(void);
-void BusFault_Handler(void);
-void UsageFault_Handler(void);
-void SVC_Handler(void);
-void DebugMon_Handler(void);
-void PendSV_Handler(void);
-void SysTick_Handler(void);
-void RTC_IRQHandler(void);
-void FLASH_IRQHandler(void);
-void DMA1_Channel1_IRQHandler(void);
-void DMA1_Channel2_IRQHandler(void);
-void DMA1_Channel3_IRQHandler(void);
-void DMA1_Channel4_IRQHandler(void);
-void DMA1_Channel5_IRQHandler(void);
-void DMA1_Channel6_IRQHandler(void);
-void DMA1_Channel7_IRQHandler(void);
-void USB_HP_CAN1_TX_IRQHandler(void);
-void USB_LP_CAN1_RX0_IRQHandler(void);
-void USART1_IRQHandler(void);
-void USART2_IRQHandler(void);
-void USART3_IRQHandler(void);
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
+   bool hal_interrupt_disable(void);
+   void hal_interrupt_enable(bool s);
+   /* USER CODE END EFP */
 
 #ifdef __cplusplus
 }

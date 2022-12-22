@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include "bsp.h"
 
 #include "usb_device.h"
 #include "usbd_core.h"

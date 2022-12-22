@@ -6,8 +6,8 @@
 **
 **  Author		: STM32CubeMX
 **
-**  Abstract    : Linker script for STM32F030CCTx series
-**                256Kbytes FLASH and 32Kbytes RAM
+**  Abstract    : Linker script for STM32F103C8Tx series
+**                64Kbytes FLASH and 20Kbytes RAM
 **
 **                Set heap size, stack size and stack location according
 **                to application requirements.
@@ -49,51 +49,47 @@
 *****************************************************************************
 */
 
-_FLASH_LENGTH = 64K;
-_FLASH_ORIGIN = 0x8000000;
-_RAM_LENGTH = 20K;
-_RAM_ORIGIN = 0x20000000;
-_SYSMEM_ORIGIN = 0x1FFF0000;
-_PAGE_LENGTH = 1K;
+_ORIGIN_FLASH = 0x8000000;
+_LENGTH_FLASH = 64K;
+_LAST_FLASH = _ORIGIN_FLASH + _LENGTH_FLASH - 1;
+_LENGTH_RAM_ALL = 20K;
+_ORIGIN_RAM = 0x20000000;
+_ORIGIN_SYSMEM = 0x1FFF0000;
+_LENGTH_PAGE = 1K;
+_LENGTH_META = 16;
+_LENGTH_KEYSTORE = _LENGTH_PAGE;
 
-/************************************
-***** Memory layout *****************
-------------------------- 0
-BL
-------------------------- 7K
-BL Metadata
-------------------------- 8K
-APP
-------------------------- 63K
-APP Metadata
-------------------------- 64K
-*************************************
-*/
-
-/* aligned to page for simplicity */
-_LENGTH_META = 1K;
-_LENGTH_BL = 7K;
+/* Must be aligned to page */
+_LENGTH_BL = 29K - _LENGTH_META;
 /* Rest of flash */
-_LENGTH_APP = _FLASH_LENGTH - (_LENGTH_META + _LENGTH_BL + _LENGTH_META);
+_LENGTH_APP = _LENGTH_FLASH - ((_LENGTH_BL + _LENGTH_META) + (_LENGTH_META + _LENGTH_KEYSTORE));
 
-_ORIGIN_BL = _FLASH_ORIGIN;
+_ORIGIN_BL = _ORIGIN_FLASH;
 _ORIGIN_BL_META = (_ORIGIN_BL + _LENGTH_BL);
-_ORIGIN_APP = _ORIGIN_BL + _LENGTH_BL + _LENGTH_META;
+_ORIGIN_APP = (_ORIGIN_BL_META + _LENGTH_META);
 _ORIGIN_APP_META = _ORIGIN_APP + _LENGTH_APP;
+_ORIGIN_KEYSTORE = _ORIGIN_APP_META + _LENGTH_META;
 
 /* Should track the size of the reset structure */
 _LENGTH_RAM_NOLOAD = 12;
-_LENGTH_RAM_LOAD = (_RAM_LENGTH- _LENGTH_RAM_NOLOAD);
-_ORIGIN_RAM_NOLOAD = _RAM_ORIGIN + _LENGTH_RAM_LOAD;
+_LENGTH_RAM_LOAD = (_LENGTH_RAM_ALL - _LENGTH_RAM_NOLOAD);
+_ORIGIN_RAM_NOLOAD = _ORIGIN_RAM + _LENGTH_RAM_LOAD;
+
+/* Highest address of the user mode stack */
+_estack = _ORIGIN_RAM + _LENGTH_RAM_ALL;    /* end of RAM */
+/* Generate a link error if heap and stack don't fit into RAM */
+_Min_Heap_Size = 0x0;      /* required amount of heap  */
+_Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
 {
-RAM (xrw)           : ORIGIN = _RAM_ORIGIN, LENGTH = _LENGTH_RAM_LOAD
+RAM (xrw)           : ORIGIN = _ORIGIN_RAM, LENGTH = _LENGTH_RAM_LOAD
 RAM_NOLOAD (rw)     : ORIGIN = _ORIGIN_RAM_NOLOAD, LENGTH = _LENGTH_RAM_NOLOAD
 FLASH_BL (rx)       : ORIGIN = _ORIGIN_BL, LENGTH = _LENGTH_BL
 FLASH_BL_META (rw)  : ORIGIN = _ORIGIN_BL_META, LENGTH = _LENGTH_META
 /* Ensure the vector table is aligned */
 FLASH_APP (rx)      : ORIGIN = _ORIGIN_APP, LENGTH = _LENGTH_APP
-FLASH_APP_META (rw) : ORIGIN = _ORIGIN_APP_META, LENGTH = _LENGTH_APP
+FLASH_APP_META (rw) : ORIGIN = _ORIGIN_APP_META, LENGTH = _LENGTH_META
+FLASH_KEYSTORE (rw) : ORIGIN = _ORIGIN_KEYSTORE, LENGTH = _LENGTH_KEYSTORE
 }

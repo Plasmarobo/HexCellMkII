@@ -18,13 +18,10 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "cmsis_compiler.h"
-#include "cmsis_os.h"
-#include "task.h"
-
 #include "FreeRTOS.h"
-
-#include "display_task.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -61,6 +58,7 @@ osStaticThreadDef_t defaultTaskControlBlock;
 
 void StartDefaultTask(void const * argument);
 
+extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
@@ -68,18 +66,6 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
 
 /* GetTimerTaskMemory prototype (linked to static allocation support) */
 void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize );
-
-/* Hook prototypes */
-void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName);
-
-/* USER CODE BEGIN 4 */
-__WEAK void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char* pcTaskName)
-{
-   /* Run time stack overflow checking is performed if
-   configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
-   called if a stack overflow is detected. */
-}
-/* USER CODE END 4 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
 static StaticTask_t xIdleTaskTCBBuffer;
@@ -140,7 +126,6 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  display_task_init();
   /* USER CODE END RTOS_THREADS */
 
 }
@@ -154,6 +139,8 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void const * argument)
 {
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for(;;)

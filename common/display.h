@@ -14,7 +14,6 @@
  * This provides pattern handlers. The update function may be called in a
  * loop, or RTOS task
  */
-
 #include "opt_prototypes.h"
 
 #include <stdint.h>

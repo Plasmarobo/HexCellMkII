@@ -35,6 +35,7 @@ typedef enum
   PORT_BI,
   PORT_CO,
   PORT_CI,
+  PORT_USB,
   PORT_MAX,
 } comm_port_t;
 

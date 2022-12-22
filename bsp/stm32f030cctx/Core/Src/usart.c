@@ -60,7 +60,7 @@ void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance                         = USART1;
-  huart1.Init.BaudRate                    = 115200;
+  huart1.Init.BaudRate                    = 230400;
   huart1.Init.WordLength                  = UART_WORDLENGTH_8B;
   huart1.Init.StopBits                    = UART_STOPBITS_1;
   huart1.Init.Parity                      = UART_PARITY_NONE;
@@ -84,16 +84,16 @@ void MX_USART2_UART_Init(void)
 {
 
   /* USER CODE BEGIN USART2_Init 0 */
-  uart_state_data[PORT_BI].huart  = &huart2;
-  uart_state_data[PORT_BI].rx_cb  = NULL;
-  uart_state_data[PORT_BI].tx_cb  = NULL;
+  uart_state_data[PORT_AI].huart = &huart2;
+  uart_state_data[PORT_AI].rx_cb = NULL;
+  uart_state_data[PORT_AI].tx_cb = NULL;
   /* USER CODE END USART2_Init 0 */
 
   /* USER CODE BEGIN USART2_Init 1 */
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance                         = USART2;
-  huart2.Init.BaudRate                    = 115200;
+  huart2.Init.BaudRate                    = 230400;
   huart2.Init.WordLength                  = UART_WORDLENGTH_8B;
   huart2.Init.StopBits                    = UART_STOPBITS_1;
   huart2.Init.Parity                      = UART_PARITY_NONE;
@@ -117,16 +117,16 @@ void MX_USART3_UART_Init(void)
 {
 
   /* USER CODE BEGIN USART3_Init 0 */
-  uart_state_data[PORT_AI].huart  = &huart3;
-  uart_state_data[PORT_AI].rx_cb  = NULL;
-  uart_state_data[PORT_AI].tx_cb  = NULL;
+  uart_state_data[PORT_BI].huart = &huart3;
+  uart_state_data[PORT_BI].rx_cb = NULL;
+  uart_state_data[PORT_BI].tx_cb = NULL;
   /* USER CODE END USART3_Init 0 */
 
   /* USER CODE BEGIN USART3_Init 1 */
 
   /* USER CODE END USART3_Init 1 */
   huart3.Instance                         = USART3;
-  huart3.Init.BaudRate                    = 115200;
+  huart3.Init.BaudRate                    = 230400;
   huart3.Init.WordLength                  = UART_WORDLENGTH_8B;
   huart3.Init.StopBits                    = UART_STOPBITS_1;
   huart3.Init.Parity                      = UART_PARITY_NONE;
@@ -150,16 +150,16 @@ void MX_USART4_UART_Init(void)
 {
 
   /* USER CODE BEGIN USART4_Init 0 */
-  uart_state_data[PORT_CI].huart  = &huart4;
-  uart_state_data[PORT_CI].rx_cb  = NULL;
-  uart_state_data[PORT_CI].tx_cb  = NULL;
+  uart_state_data[PORT_AO].huart = &huart4;
+  uart_state_data[PORT_AO].rx_cb = NULL;
+  uart_state_data[PORT_AO].tx_cb = NULL;
   /* USER CODE END USART4_Init 0 */
 
   /* USER CODE BEGIN USART4_Init 1 */
 
   /* USER CODE END USART4_Init 1 */
   huart4.Instance                    = USART4;
-  huart4.Init.BaudRate               = 115200;
+  huart4.Init.BaudRate               = 230400;
   huart4.Init.WordLength             = UART_WORDLENGTH_8B;
   huart4.Init.StopBits               = UART_STOPBITS_1;
   huart4.Init.Parity                 = UART_PARITY_NONE;
@@ -182,16 +182,16 @@ void MX_USART5_UART_Init(void)
 {
 
   /* USER CODE BEGIN USART5_Init 0 */
-  uart_state_data[PORT_AO].huart  = &huart5;
-  uart_state_data[PORT_AO].rx_cb  = NULL;
-  uart_state_data[PORT_AO].tx_cb  = NULL;
+  uart_state_data[PORT_CI].huart = &huart5;
+  uart_state_data[PORT_CI].rx_cb = NULL;
+  uart_state_data[PORT_CI].tx_cb = NULL;
   /* USER CODE END USART5_Init 0 */
 
   /* USER CODE BEGIN USART5_Init 1 */
 
   /* USER CODE END USART5_Init 1 */
   huart5.Instance                    = USART5;
-  huart5.Init.BaudRate               = 115200;
+  huart5.Init.BaudRate               = 230400;
   huart5.Init.WordLength             = UART_WORDLENGTH_8B;
   huart5.Init.StopBits               = UART_STOPBITS_1;
   huart5.Init.Parity                 = UART_PARITY_NONE;
@@ -223,7 +223,7 @@ void MX_USART6_UART_Init(void)
 
   /* USER CODE END USART6_Init 1 */
   huart6.Instance                    = USART6;
-  huart6.Init.BaudRate               = 115200;
+  huart6.Init.BaudRate               = 230400;
   huart6.Init.WordLength             = UART_WORDLENGTH_8B;
   huart6.Init.StopBits               = UART_STOPBITS_1;
   huart6.Init.Parity                 = UART_PARITY_NONE;

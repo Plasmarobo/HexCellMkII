@@ -26,29 +26,42 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "comm_phy.h"
 
-/* USER CODE BEGIN Includes */
+#include "stm32f1xx.h"
+#include "stm32f1xx_hal.h"
 
-/* USER CODE END Includes */
+  /* USER CODE BEGIN Includes */
 
-extern UART_HandleTypeDef huart1;
+  /* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart2;
+  extern UART_HandleTypeDef huart1;
 
-extern UART_HandleTypeDef huart3;
+  extern UART_HandleTypeDef huart2;
+
+  extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
+#define UART_SUCCESS (0)
+#define UART_ERR_BUSY (-1)
+#define UART_ERR_TIMEOUT (-2)
+#define UART_ERR_COMM (-3)
+#define UART_ERR_PARAM (-4)
+#define UART_ERR_OVERFLOW (-5)
+#define UART_ERR_ABORT (-6)
 
-/* USER CODE END Private defines */
+  /* USER CODE END Private defines */
 
-void MX_USART1_UART_Init(void);
-void MX_USART2_UART_Init(void);
-void MX_USART3_UART_Init(void);
+  void MX_USART1_UART_Init(void);
+  void MX_USART2_UART_Init(void);
+  void MX_USART3_UART_Init(void);
 
-/* USER CODE BEGIN Prototypes */
-
-/* USER CODE END Prototypes */
+  /* USER CODE BEGIN Prototypes */
+  int32_t uart_send(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb);
+  int32_t uart_receive(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb);
+  void    uart_abort_tx(comm_port_t port);
+  void    uart_abort_rx(comm_port_t port);
+  /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }

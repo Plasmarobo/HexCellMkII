@@ -18,7 +18,10 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#ifdef HAL_CAN_MODULE_ENABLED
 #include "can.h"
+
+#include "bsp.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -142,3 +145,4 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* canHandle)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
+#endif

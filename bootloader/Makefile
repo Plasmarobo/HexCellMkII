@@ -1,7 +1,12 @@
 
-TARGET = bootloader_$(HW_VERSION)
+TARGET_NAME = bootloader_$(HW_VERSION)
+IMAGE_MAGIC = 0xB007104D
+
 # Pull in BSP variables
 include $(BSP_PREFIX)/build.mk
+
+# Jump-to address
+BOOT_ADDRESS = 0x8006800
 
 C_INCLUDES += \
 -I../common/hal \
@@ -16,10 +21,10 @@ $(wildcard ../Middlewares/Third_Party/FIFO/*.c)
 
 # link script
 LDSCRIPT = ../bootloader/BOOTLOADER.ld
-LDFLAGS += -T$(LDSCRIPT) -Wl,-Map=$(TARGET).map,--cref
+LDFLAGS += -T$(LDSCRIPT) -Wl,-Map=$(TARGET_NAME).map,--cref
 .PHONY: all
 
-all: $(TARGET).srec $(TARGET).elf $(TARGET).hex $(TARGET).bin $(TARGET).fwu
+all: $(TARGET_NAME).elf $(TARGET_NAME).hex $(TARGET_NAME).bin $(TARGET_NAME).fwu $(TARGET_NAME).srec 
 
 # Pull in general recepies
 include ../build.mk

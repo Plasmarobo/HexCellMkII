@@ -35,6 +35,7 @@ CPU = -mcpu=cortex-m0
 # NONE for Cortex-M0/M0+/M3
 
 # float-abi
+FPU = -mfpu=none
 
 # mcu
 MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)

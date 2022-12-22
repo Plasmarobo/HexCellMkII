@@ -19,18 +19,30 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
+#include "bsp.h"
+#include "gpio.h"
+#include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
+
+typedef struct
+{
+  UART_HandleTypeDef* huart;
+  opt_callback_t      rx_cb;
+  opt_callback_t      tx_cb;
+} uart_port_state_t;
+
+static uart_port_state_t uart_state_data[PORT_MAX];
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart1_tx;
-DMA_HandleTypeDef hdma_usart2_rx;
-DMA_HandleTypeDef hdma_usart2_tx;
+DMA_HandleTypeDef  hdma_usart2_tx;
+DMA_HandleTypeDef  hdma_usart2_rx;
 DMA_HandleTypeDef hdma_usart3_tx;
 DMA_HandleTypeDef hdma_usart3_rx;
 
@@ -158,7 +170,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart1_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart1_rx.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_usart1_rx.Init.Priority            = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart1_rx) != HAL_OK)
     {
       Error_Handler();
@@ -174,7 +186,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart1_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart1_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart1_tx.Init.Mode = DMA_NORMAL;
-    hdma_usart1_tx.Init.Priority = DMA_PRIORITY_MEDIUM;
+    hdma_usart1_tx.Init.Priority            = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart1_tx) != HAL_OK)
     {
       Error_Handler();
@@ -213,6 +225,22 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(PORT_B_RX_GPIO_Port, &GPIO_InitStruct);
 
     /* USART2 DMA Init */
+    /* USART2_TX Init */
+    hdma_usart2_tx.Instance                 = DMA1_Channel7;
+    hdma_usart2_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+    hdma_usart2_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    hdma_usart2_tx.Init.MemInc              = DMA_MINC_ENABLE;
+    hdma_usart2_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart2_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    hdma_usart2_tx.Init.Mode                = DMA_NORMAL;
+    hdma_usart2_tx.Init.Priority            = DMA_PRIORITY_LOW;
+    if (HAL_DMA_Init(&hdma_usart2_tx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(uartHandle, hdmatx, hdma_usart2_tx);
+
     /* USART2_RX Init */
     hdma_usart2_rx.Instance = DMA1_Channel6;
     hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
@@ -221,29 +249,13 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart2_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_usart2_rx.Init.Priority            = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
     {
       Error_Handler();
     }
 
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart2_rx);
-
-    /* USART2_TX Init */
-    hdma_usart2_tx.Instance = DMA1_Channel7;
-    hdma_usart2_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    hdma_usart2_tx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_usart2_tx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_usart2_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart2_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart2_tx.Init.Mode = DMA_NORMAL;
-    hdma_usart2_tx.Init.Priority = DMA_PRIORITY_MEDIUM;
-    if (HAL_DMA_Init(&hdma_usart2_tx) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart2_tx);
 
     /* USART2 interrupt Init */
     HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
@@ -284,7 +296,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart3_tx.Init.Mode = DMA_NORMAL;
-    hdma_usart3_tx.Init.Priority = DMA_PRIORITY_MEDIUM;
+    hdma_usart3_tx.Init.Priority            = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK)
     {
       Error_Handler();
@@ -300,7 +312,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart3_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_usart3_rx.Init.Priority            = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
     {
       Error_Handler();
@@ -359,8 +371,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_DeInit(GPIOA, PORT_B_TX_Pin|PORT_B_RX_Pin);
 
     /* USART2 DMA DeInit */
-    HAL_DMA_DeInit(uartHandle->hdmarx);
     HAL_DMA_DeInit(uartHandle->hdmatx);
+    HAL_DMA_DeInit(uartHandle->hdmarx);
 
     /* USART2 interrupt Deinit */
     HAL_NVIC_DisableIRQ(USART2_IRQn);
@@ -396,4 +408,163 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 /* USER CODE BEGIN 1 */
 
+/* USER CODE BEGIN 1 */
+static void handle_abort(int32_t user1, uint32_t user2)
+{
+  // Noop
+}
+
+int32_t uart_send(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb)
+{
+  int32_t response = UART_SUCCESS;
+  if ((port >= PORT_MAX) || (NULL == buffer) || (0 == length) || (NULL == cb))
+  {
+    response = UART_ERR_PARAM;
+  }
+  else if (NULL != uart_state_data[port].tx_cb)
+  {
+    response = UART_ERR_BUSY;
+  }
+  else
+  {
+    uart_state_data[port].tx_cb = cb;
+    if (port < PORT_USB)
+    {
+      if (HAL_OK != HAL_UART_Transmit_IT(uart_state_data[port].huart, buffer, length))
+      {
+        response = UART_ERR_BUSY;
+      }
+    }
+    else if (port == PORT_USB)
+    {
+      CDC_Transmit_FS(buffer, length);
+    }
+  }
+  return response;
+}
+
+int32_t uart_receive(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callback_t cb)
+{
+  int32_t response = UART_SUCCESS;
+  if ((port >= PORT_MAX) || (NULL == buffer) || (0 == length) || (NULL == cb))
+  {
+    response = UART_ERR_PARAM;
+  }
+  else if (NULL != uart_state_data[port].tx_cb)
+  {
+    response = UART_ERR_BUSY;
+  }
+  else
+  {
+    uart_state_data[port].rx_cb = cb;
+    if (port < PORT_USB)
+    {
+      if (HAL_OK != HAL_UART_Receive_IT(uart_state_data[port].huart, buffer, length))
+      {
+        response = UART_ERR_BUSY;
+      }
+    }
+    else if (port == PORT_USB)
+    {
+    }
+  }
+  return response;
+}
+
+void uart_abort_tx(comm_port_t port)
+{
+  if (port < PORT_MAX)
+  {
+    // Set the CB to prevent other ops
+    uart_state_data[port].tx_cb = handle_abort;
+    HAL_UART_AbortTransmit_IT(uart_state_data[port].huart);
+  }
+}
+
+void uart_abort_rx(comm_port_t port)
+{
+  if (port < PORT_MAX)
+  {
+    // Set the CB to prevent other ops
+    uart_state_data[port].rx_cb = handle_abort;
+    HAL_UART_AbortReceive_IT(uart_state_data[port].huart);
+  }
+}
+
+void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef* huart)
+{
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart)
+{
+  for (uint8_t i = PORT_AO; i < PORT_MAX; ++i)
+  {
+    if ((huart == uart_state_data[i].huart) && (NULL != uart_state_data[i].tx_cb))
+    {
+      uart_state_data[i].tx_cb(COMM_SUCCESS, i);
+      uart_state_data[i].tx_cb = NULL;
+      return;
+    }
+  }
+}
+
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart)
+{
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
+{
+  for (uint8_t i = PORT_AO; i < PORT_MAX; ++i)
+  {
+    if ((huart == uart_state_data[i].huart) && (NULL != uart_state_data[i].rx_cb))
+    {
+      uart_state_data[i].rx_cb(COMM_SUCCESS, i);
+      uart_state_data[i].rx_cb = NULL;
+      return;
+    }
+  }
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart)
+{
+  for (uint8_t i = PORT_AO; i < PORT_MAX; ++i)
+  {
+    if ((huart == uart_state_data[i].huart) && (NULL != uart_state_data[i].rx_cb))
+    {
+      uart_state_data[i].rx_cb(UART_ERR_COMM, i);
+      uart_state_data[i].rx_cb = NULL;
+      return;
+    }
+    if ((huart == uart_state_data[i].huart) && (NULL != uart_state_data[i].tx_cb))
+    {
+      uart_state_data[i].tx_cb(UART_ERR_COMM, i);
+      uart_state_data[i].tx_cb = NULL;
+      return;
+    }
+  }
+}
+
+void HAL_UART_AbortTransmitCpltCallback(UART_HandleTypeDef* huart)
+{
+  for (uint8_t i = PORT_AO; i < PORT_MAX; ++i)
+  {
+    if (huart == uart_state_data[i].huart)
+    {
+      uart_state_data[i].tx_cb = NULL;
+      return;
+    }
+  }
+}
+
+void HAL_UART_AbortReceiveCpltCallback(UART_HandleTypeDef* huart)
+{
+  for (uint8_t i = PORT_AO; i < PORT_MAX; ++i)
+  {
+    if (huart == uart_state_data[i].huart)
+    {
+      uart_state_data[i].rx_cb = NULL;
+      return;
+    }
+  }
+}
 /* USER CODE END 1 */

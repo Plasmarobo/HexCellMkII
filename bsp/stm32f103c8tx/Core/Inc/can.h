@@ -24,26 +24,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#ifdef HAL_CAN_MODULE_ENABLED
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "stm32f1xx_hal.h"
 
-/* USER CODE BEGIN Includes */
+  /* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
+  /* USER CODE END Includes */
 
-extern CAN_HandleTypeDef hcan;
+  extern CAN_HandleTypeDef hcan;
 
-/* USER CODE BEGIN Private defines */
+  /* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
+  /* USER CODE END Private defines */
 
-void MX_CAN_Init(void);
+  void MX_CAN_Init(void);
 
-/* USER CODE BEGIN Prototypes */
+  /* USER CODE BEGIN Prototypes */
 
-/* USER CODE END Prototypes */
-
+  /* USER CODE END Prototypes */
+#endif
 #ifdef __cplusplus
 }
 #endif

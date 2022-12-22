@@ -14,6 +14,16 @@
 #define BOOTLOADER_FLAG_SENDING (1)
 #define BOOT_ADDRESS_INVALID (0xFFFFFFFF)
 
+__attribute__((section(".bootloader_meta"))) image_metadata_t image_metadata = {
+  .image_magic       = IMAGE_MAGIC_BL,
+  .version_major     = FW_VERSION_MAJOR,
+  .version_minor     = FW_VERSION_MINOR,
+  .version_patch     = FW_VERSION_PATCH,
+  .hardware_revision = HW_VERSION,
+  .reserved          = 0,
+  .boot_address      = BOOT_ADDRESS,
+};
+
 typedef enum
 {
   BOOT_STATE_LISTEN = 0,
@@ -54,11 +64,12 @@ void bootloader_init(void)
   boot_state = BOOT_STATE_LISTEN;
 
   const image_metadata_t* bootloader_data = get_image_metadata(IMAGE_MAGIC_BL);
+
   serial_print("=== BOOTLOADER ===\r\n");
   serial_printf("Boot mode: %d, Reset reason: %d\r\n", boot_mode, reset_reason);
   if ((NULL == bootloader_data) || (bootloader_data->image_magic != IMAGE_MAGIC_BL))
   {
-    serial_print("Bootloader metadat invalid\r\n");
+    serial_print("Bootloader metadata invalid\r\n");
   }
   else
   {
@@ -66,7 +77,7 @@ void bootloader_init(void)
                   bootloader_data->version_major,
                   bootloader_data->version_minor,
                   bootloader_data->version_patch);
-    serial_printf("HW Rev: %d, ID: %x\r\n", bootloader_data->hardware_revision, bootloader_data->hardware_id);
+    serial_printf("HW Rev: %d\r\n", bootloader_data->hardware_revision);
     serial_printf("Boot address: %x\r\n", bootloader_data->boot_address);
   }
 }

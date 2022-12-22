@@ -26,23 +26,25 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "stm32f1xx_hal.h"
+#include <stdint.h>
+  /* USER CODE BEGIN Includes */
 
-/* USER CODE BEGIN Includes */
+  /* USER CODE END Includes */
 
-/* USER CODE END Includes */
+  extern CRC_HandleTypeDef hcrc;
 
-extern CRC_HandleTypeDef hcrc;
+  /* USER CODE BEGIN Private defines */
 
-/* USER CODE BEGIN Private defines */
+  /* USER CODE END Private defines */
 
-/* USER CODE END Private defines */
+  void MX_CRC_Init(void);
 
-void MX_CRC_Init(void);
-
-/* USER CODE BEGIN Prototypes */
-
-/* USER CODE END Prototypes */
+  /* USER CODE BEGIN Prototypes */
+  void     start_crc(uint8_t* buffer, uint32_t length);
+  void     continue_crc(uint8_t* buffer, uint32_t length);
+  uint32_t finish_crc(void);
+  /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }

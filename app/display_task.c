@@ -31,6 +31,7 @@ void display_task_init(void)
 
 void display_task_handler(void* argument)
 {
+  display_set_boot_pattern();
   for (;;)
   {
     uint32_t update_timer = get_milliseconds();

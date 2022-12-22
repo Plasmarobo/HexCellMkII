@@ -23,8 +23,8 @@
 #include <stdint.h>
 
 // Warning: this will consume more than 3k per point of depth
-#define TX_QUEUE_LENGTH (3)
-#define RX_QUEUE_LENGTH (4)
+#define TX_QUEUE_LENGTH (1)
+#define RX_QUEUE_LENGTH (3)
 
 typedef enum
 {

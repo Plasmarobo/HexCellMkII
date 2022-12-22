@@ -18,8 +18,8 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include "stm32f1xx_it.h"
+#include "stm32f1xx_hal.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -56,13 +56,22 @@
 
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_FS;
+#ifdef HAL_ADC_MODULE_ENABLED
 extern DMA_HandleTypeDef hdma_adc1;
+#endif
+#ifdef HAL_CAN_MODULE_ENABLED
 extern CAN_HandleTypeDef hcan;
+#endif
+#ifdef HAL_RTC_MODULE_ENABLED
 extern RTC_HandleTypeDef hrtc;
+#endif
+#ifdef HAL_SPI_MODULE_ENABLED
+extern SPI_HandleTypeDef hspi1;
+#endif
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern DMA_HandleTypeDef hdma_usart1_tx;
-extern DMA_HandleTypeDef hdma_usart2_rx;
-extern DMA_HandleTypeDef hdma_usart2_tx;
+extern DMA_HandleTypeDef  hdma_usart2_tx;
+extern DMA_HandleTypeDef  hdma_usart2_rx;
 extern DMA_HandleTypeDef hdma_usart3_tx;
 extern DMA_HandleTypeDef hdma_usart3_rx;
 extern UART_HandleTypeDef huart1;
@@ -149,7 +158,7 @@ void UsageFault_Handler(void)
     /* USER CODE END W1_UsageFault_IRQn 0 */
   }
 }
-
+#ifndef FREERTOS
 /**
   * @brief This function handles System service call via SWI instruction.
   */
@@ -162,7 +171,7 @@ void SVC_Handler(void)
 
   /* USER CODE END SVCall_IRQn 1 */
 }
-
+#endif
 /**
   * @brief This function handles Debug monitor.
   */
@@ -175,7 +184,7 @@ void DebugMon_Handler(void)
 
   /* USER CODE END DebugMonitor_IRQn 1 */
 }
-
+#ifndef FREERTOS
 /**
   * @brief This function handles Pendable request for system service.
   */
@@ -188,7 +197,8 @@ void PendSV_Handler(void)
 
   /* USER CODE END PendSV_IRQn 1 */
 }
-
+#endif
+#ifndef FREERTOS
 /**
   * @brief This function handles System tick timer.
   */
@@ -202,6 +212,7 @@ void SysTick_Handler(void)
 
   /* USER CODE END SysTick_IRQn 1 */
 }
+#endif
 
 /******************************************************************************/
 /* STM32F1xx Peripheral Interrupt Handlers                                    */
@@ -218,7 +229,9 @@ void RTC_IRQHandler(void)
   /* USER CODE BEGIN RTC_IRQn 0 */
 
   /* USER CODE END RTC_IRQn 0 */
+#ifdef HAL_RTC_MODULE_ENABLED
   HAL_RTCEx_RTCIRQHandler(&hrtc);
+#endif
   /* USER CODE BEGIN RTC_IRQn 1 */
 
   /* USER CODE END RTC_IRQn 1 */
@@ -246,7 +259,9 @@ void DMA1_Channel1_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
 
   /* USER CODE END DMA1_Channel1_IRQn 0 */
+#ifdef HAL_ADC_MODULE_ENABLED
   HAL_DMA_IRQHandler(&hdma_adc1);
+#endif
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
 
   /* USER CODE END DMA1_Channel1_IRQn 1 */
@@ -344,7 +359,9 @@ void USB_HP_CAN1_TX_IRQHandler(void)
   /* USER CODE BEGIN USB_HP_CAN1_TX_IRQn 0 */
 
   /* USER CODE END USB_HP_CAN1_TX_IRQn 0 */
+#ifdef HAL_CAN_MODULE_ENABLED
   HAL_CAN_IRQHandler(&hcan);
+#endif
   HAL_PCD_IRQHandler(&hpcd_USB_FS);
   /* USER CODE BEGIN USB_HP_CAN1_TX_IRQn 1 */
 
@@ -359,11 +376,29 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
   /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 0 */
 
   /* USER CODE END USB_LP_CAN1_RX0_IRQn 0 */
+#ifdef HAL_CAN_MODULE_ENABLED
   HAL_CAN_IRQHandler(&hcan);
+#endif
   HAL_PCD_IRQHandler(&hpcd_USB_FS);
   /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 1 */
 
   /* USER CODE END USB_LP_CAN1_RX0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles SPI1 global interrupt.
+ */
+void SPI1_IRQHandler(void)
+{
+/* USER CODE BEGIN SPI1_IRQn 0 */
+
+/* USER CODE END SPI1_IRQn 0 */
+#ifdef HAL_SPI_MODULE_ENABLED
+  HAL_SPI_IRQHandler(&hspi1);
+#endif
+  /* USER CODE BEGIN SPI1_IRQn 1 */
+
+  /* USER CODE END SPI1_IRQn 1 */
 }
 
 /**
@@ -410,4 +445,19 @@ void USART3_IRQHandler(void)
 
 /* USER CODE BEGIN 1 */
 
+/* USER CODE BEGIN 1 */
+bool hal_interrupt_disable(void)
+{
+  bool result = (__get_PRIMASK() == 0);
+  __disable_irq();
+  return result;
+}
+
+void hal_interrupt_enable(bool s)
+{
+  if (s)
+  {
+    __enable_irq();
+  }
+}
 /* USER CODE END 1 */

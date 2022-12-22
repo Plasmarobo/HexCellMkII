@@ -28,38 +28,39 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal_conf.h"
+#include "stm32f1xx_hal_def.h"
 
-/** @addtogroup STM32F1xx_HAL_Driver
-  * @{
-  */
+  /** @addtogroup STM32F1xx_HAL_Driver
+   * @{
+   */
 
-/** @addtogroup HAL
-  * @{
-  */
+  /** @addtogroup HAL
+   * @{
+   */
 
-/* Exported constants --------------------------------------------------------*/
+  /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup HAL_Exported_Constants HAL Exported Constants
-  * @{
-  */
+  /** @defgroup HAL_Exported_Constants HAL Exported Constants
+   * @{
+   */
 
-/** @defgroup HAL_TICK_FREQ Tick Frequency
-  * @{
-  */
-typedef enum
-{
-  HAL_TICK_FREQ_10HZ         = 100U,
-  HAL_TICK_FREQ_100HZ        = 10U,
-  HAL_TICK_FREQ_1KHZ         = 1U,
-  HAL_TICK_FREQ_DEFAULT      = HAL_TICK_FREQ_1KHZ
-} HAL_TickFreqTypeDef;
-/**
-  * @}
-  */
-/* Exported types ------------------------------------------------------------*/
-extern __IO uint32_t uwTick;
-extern uint32_t uwTickPrio;
-extern HAL_TickFreqTypeDef uwTickFreq;
+  /** @defgroup HAL_TICK_FREQ Tick Frequency
+   * @{
+   */
+  typedef enum
+  {
+    HAL_TICK_FREQ_10HZ    = 100U,
+    HAL_TICK_FREQ_100HZ   = 10U,
+    HAL_TICK_FREQ_1KHZ    = 1U,
+    HAL_TICK_FREQ_DEFAULT = HAL_TICK_FREQ_1KHZ
+  } HAL_TickFreqTypeDef;
+  /**
+   * @}
+   */
+  /* Exported types ------------------------------------------------------------*/
+  extern __IO uint32_t       uwTick;
+  extern uint32_t            uwTickPrio;
+  extern HAL_TickFreqTypeDef uwTickFreq;
 
 /**
   * @}

@@ -9,6 +9,8 @@ extern const uintptr_t _ORIGIN_APP;
 extern const uint32_t  _LENGTH_APP;
 extern const uintptr_t _ORIGIN_APP_META;
 extern const uint32_t  _LENGTH_META;
+extern const uintptr_t _ORIGIN_KEYSTORE;
+extern const uint32_t  _LENGTH_KEYSTORE;
 
 const uintptr_t ORIGIN_BL       = (uintptr_t)(&_ORIGIN_BL);
 const uint32_t  LENGTH_BL       = (uint32_t)(&_LENGTH_BL);
@@ -17,3 +19,5 @@ const uintptr_t ORIGIN_APP      = (uintptr_t)(&_ORIGIN_APP);
 const uint32_t  LENGTH_APP      = (uint32_t)(&_LENGTH_APP);
 const uintptr_t ORIGIN_APP_META = (uintptr_t)(&_ORIGIN_APP_META);
 const uint32_t  LENGTH_META     = (uint32_t)(&_LENGTH_META);
+const uintptr_t ORIGIN_KEYSTORE = (uintptr_t)(&_ORIGIN_KEYSTORE);
+const uint32_t  LENGTH_KEYSTORE = (uint32_t)(&_LENGTH_KEYSTORE);

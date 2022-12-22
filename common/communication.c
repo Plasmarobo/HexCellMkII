@@ -27,8 +27,6 @@
 #include "message_protocol.h"
 #include "report.h"
 
-#include "stm32f0xx_hal.h"
-
 #include "FIFO.h"
 
 #include <stdint.h>
@@ -58,7 +56,6 @@ static uint32_t           self_address;
 static port_description_t get_own_description(void)
 {
   port_description_t own_description;
-  own_description.id            = get_hardware_id();
   own_description.address       = self_address;
   own_description.version_major = current_metadata->version_major;
   own_description.version_minor = current_metadata->version_minor;
@@ -134,7 +131,7 @@ void handle_connect_query(int32_t port, uint32_t buffer_address)
 
 void connect_disconnect_callback(int32_t port, uint32_t connect_status)
 {
-  if (GPIO_PIN_SET == connect_status)
+  if (GPIO_SET == connect_status)
   {
     // CONNECT event on an output port
     // send query

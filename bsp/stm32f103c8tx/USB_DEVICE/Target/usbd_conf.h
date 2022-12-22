@@ -27,51 +27,51 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "main.h"
 #include "stm32f1xx.h"
 #include "stm32f1xx_hal.h"
 
-/* USER CODE BEGIN INCLUDE */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-/* USER CODE END INCLUDE */
+   /* USER CODE BEGIN INCLUDE */
 
-/** @addtogroup USBD_OTG_DRIVER
-  * @{
-  */
+   /* USER CODE END INCLUDE */
 
-/** @defgroup USBD_CONF USBD_CONF
-  * @brief Configuration file for Usb otg low level driver.
-  * @{
-  */
+   /** @addtogroup USBD_OTG_DRIVER
+    * @{
+    */
 
-/** @defgroup USBD_CONF_Exported_Variables USBD_CONF_Exported_Variables
-  * @brief Public variables.
-  * @{
-  */
+   /** @defgroup USBD_CONF USBD_CONF
+    * @brief Configuration file for Usb otg low level driver.
+    * @{
+    */
 
-/**
-  * @}
-  */
+   /** @defgroup USBD_CONF_Exported_Variables USBD_CONF_Exported_Variables
+    * @brief Public variables.
+    * @{
+    */
 
-/** @defgroup USBD_CONF_Exported_Defines USBD_CONF_Exported_Defines
-  * @brief Defines for configuration of the Usb device.
-  * @{
-  */
+   /**
+    * @}
+    */
 
-/*---------- -----------*/
+   /** @defgroup USBD_CONF_Exported_Defines USBD_CONF_Exported_Defines
+    * @brief Defines for configuration of the Usb device.
+    * @{
+    */
+
+   /*---------- -----------*/
 #define USBD_MAX_NUM_INTERFACES     1
-/*---------- -----------*/
+ /*---------- -----------*/
 #define USBD_MAX_NUM_CONFIGURATION     1
-/*---------- -----------*/
+ /*---------- -----------*/
 #define USBD_MAX_STR_DESC_SIZ     512
-/*---------- -----------*/
+ /*---------- -----------*/
 #define USBD_DEBUG_LEVEL     0
-/*---------- -----------*/
+ /*---------- -----------*/
 #define USBD_SELF_POWERED     1
-/*---------- -----------*/
+ /*---------- -----------*/
 #define MAX_STATIC_ALLOC_SIZE     512
 
 /****************************************/

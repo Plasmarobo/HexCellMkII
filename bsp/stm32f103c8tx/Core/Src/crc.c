@@ -20,8 +20,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "crc.h"
 
-/* USER CODE BEGIN 0 */
+#include "bsp.h"
 
+/* USER CODE BEGIN 0 */
+static uint32_t current_crc;
 /* USER CODE END 0 */
 
 CRC_HandleTypeDef hcrc;
@@ -81,5 +83,20 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef* crcHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void start_crc(uint8_t* buffer, uint32_t length)
+{
+  current_crc = 0;
+  current_crc = HAL_CRC_Calculate(&hcrc, (uint32_t*)buffer, length / sizeof(uint32_t));
+}
+
+void continue_crc(uint8_t* buffer, uint32_t length)
+{
+  current_crc = HAL_CRC_Accumulate(&hcrc, (uint32_t*)buffer, length / sizeof(uint32_t));
+}
+
+uint32_t finish_crc(void)
+{
+  return ~current_crc;
+}
 
 /* USER CODE END 1 */
