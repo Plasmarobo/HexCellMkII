@@ -24,10 +24,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include "stm32f1xx_hal.h"
+
 #ifdef HAL_RTC_MODULE_ENABLED
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx.h"
-#include "stm32f1xx_hal.h"
 
   /* USER CODE BEGIN Includes */
 

@@ -24,9 +24,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#ifdef HAL_CAN_MODULE_ENABLED
-/* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+#ifdef HAL_CAN_MODULE_ENABLED
+  /* Includes ------------------------------------------------------------------*/
 
   /* USER CODE BEGIN Includes */
 

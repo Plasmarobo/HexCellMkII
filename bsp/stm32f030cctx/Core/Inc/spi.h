@@ -35,7 +35,7 @@ extern "C"
 #include <stdint.h>
   /* USER CODE END Includes */
 
-  extern SPI_HandleTypeDef hspi2;
+  extern SPI_HandleTypeDef hspi1;
 
   /* USER CODE BEGIN Private defines */
 
@@ -43,10 +43,10 @@ extern "C"
 #define SPI_ERROR (1)
   /* USER CODE END Private defines */
 
-  void MX_SPI2_Init(void);
+  void MX_SPI1_Init(void);
 
   /* USER CODE BEGIN Prototypes */
-  void spi2_send(uint8_t* buffer, uint32_t length, opt_callback_t cb);
+  void spi1_send(uint8_t* buffer, uint32_t length, opt_callback_t cb);
   /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

@@ -25,9 +25,9 @@
 extern "C"
 {
 #endif
-#ifdef HAL_TIM_MODULE_ENABLED
-/* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+#ifdef HAL_TIM_MODULE_ENABLED
+  /* Includes ------------------------------------------------------------------*/
   /* USER CODE BEGIN Includes */
 
   /* USER CODE END Includes */

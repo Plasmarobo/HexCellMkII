@@ -18,6 +18,8 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+
+#include "stm32f1xx_hal.h"
 #ifdef HAL_SPI_MODULE_ENABLED
 #include "spi.h"
 
@@ -26,8 +28,6 @@
 #include "gpio.h"
 #include "opt_prototypes.h"
 #include "stm32f1xx_it.h"
-
-#include "stm32f1xx_hal.h"
 
 static opt_callback_t operation_callback;
 /* USER CODE END 0 */
@@ -52,7 +52,7 @@ void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -129,11 +129,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 
 void spi_send(uint8_t* buffer, uint32_t length, opt_callback_t cb)
 {
-  if (HAL_OK == HAL_SPI_Transmit_IT(&hspi1, buffer, length))
-  {
-    operation_callback = cb;
-  }
-  else
+  operation_callback = cb;
+  if (HAL_OK != HAL_SPI_Transmit_IT(&hspi1, buffer, length))
   {
     if (NULL != cb)
     {

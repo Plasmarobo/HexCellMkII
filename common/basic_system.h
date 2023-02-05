@@ -97,7 +97,7 @@ typedef enum
 } basic_system_message_type_t;
 
 // A pointer to the currently active metadata structure
-const image_metadata_t* current_metadata;
+extern const image_metadata_t* current_metadata;
 
 // Image metadata access
 const image_metadata_t* get_image_metadata(uint32_t image_type);

@@ -49,10 +49,10 @@ void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance               = TIM3;
-  htim3.Init.Prescaler         = 36000;
+  htim3.Init.Prescaler         = 24000; // 48MHz clock input, div 4, 12MHz clock, 12000 divider 1kHz output
   htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  htim3.Init.Period            = 65535;
-  htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV2;
+  htim3.Init.Period            = 0xFFFF; // Max 16 bit integer
+  htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV4;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
@@ -88,9 +88,9 @@ void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance               = TIM4;
-  htim4.Init.Prescaler         = 72;
+  htim4.Init.Prescaler         = 480;
   htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  htim4.Init.Period            = 65535;
+  htim4.Init.Period            = 0xFFFF;
   htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)

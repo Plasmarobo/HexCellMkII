@@ -28,6 +28,8 @@ typedef enum
   FWU_VERIFY_IMAGE
 } firmware_update_state_t;
 
+const image_metadata_t* current_metadata = NULL;
+
 // For the STM32F030CCT, we have a 2k page of metadata for the bootloader and app
 static firmware_update_metadata_t incoming_fw_update;
 static firmware_update_state_t    fwu_state;
@@ -327,7 +329,7 @@ const image_metadata_t* get_image_metadata(uint32_t image_type)
 
 void basic_system_init(uintptr_t image_root)
 {
-  current_metadata = get_image_metadata(IMAGE_MAGIC);
+  current_metadata = get_image_metadata(image_root);
   firmware_update_init();
 }
 

@@ -18,6 +18,8 @@
 
 #include <stdint.h>
 
+#define DISPLAY_ENABLED
+
 typedef enum
 {
   PATTERN_NONE = 0,

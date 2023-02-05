@@ -8,22 +8,22 @@ C_DEFS += \
 -DFREERTOS
 
 C_INCLUDES += \
--I../common/hal \
--I../common \
--I../app \
--I../Middlewares/Third_Party/FIFO \
--I../Middlewares/Third_Party/FreeRTOS/Source/include \
--I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
--I../Middlewares/Third_Party/FreeRTOS/Source/portable/$(FREERTOS_PORTABLE)
+-I$(SOURCE_PATH)/common/hal \
+-I$(SOURCE_PATH)/common \
+-I$(SOURCE_PATH)/app \
+-I$(SOURCE_PATH)/Middlewares/Third_Party/FIFO \
+-I$(SOURCE_PATH)/Middlewares/Third_Party/FreeRTOS/Source/include \
+-I$(SOURCE_PATH)/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
+-I$(SOURCE_PATH)/Middlewares/Third_Party/FreeRTOS/Source/portable/$(FREERTOS_PORTABLE)
 
 # Pull in c files from bootloader and common, the BSP should already be defined
 C_SOURCES += \
-$(wildcard ../app/*.c) \
-$(wildcard ../common/*.c) \
-$(wildcard ../Middlewares/Third_Party/FIFO/*.c) \
-$(wildcard ../Middlewares/Third_Party/FreeRTOS/Source/*.c) \
-$(wildcard ../Middlewares/Third_Party/FreeRTOS/Source/portable/$(FREERTOS_PORTABLE)/*.c) \
-$(wildcard ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/*.c)
+$(wildcard $(SOURCE_PATH)/app/*.c) \
+$(wildcard $(SOURCE_PATH)/common/*.c) \
+$(wildcard $(SOURCE_PATH)/Middlewares/Third_Party/FIFO/*.c) \
+$(wildcard $(SOURCE_PATH)/Middlewares/Third_Party/FreeRTOS/Source/*.c) \
+$(wildcard $(SOURCE_PATH)/Middlewares/Third_Party/FreeRTOS/Source/portable/$(FREERTOS_PORTABLE)/*.c) \
+$(wildcard $(SOURCE_PATH)/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/*.c)
 
 # link script
 LDSCRIPT = ../app/APP.ld

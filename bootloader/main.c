@@ -24,6 +24,7 @@ int main(void)
 {
   reset_init();
   board_init();
+  basic_system_init(IMAGE_MAGIC_BL);
   communications_init(BOOTLOADER_ADDRESS);
   bootloader_init();
 

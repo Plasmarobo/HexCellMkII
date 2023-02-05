@@ -3,10 +3,12 @@
 #include "basic_system.h"
 #include "boot.h"
 #include "communication.h"
+#include "display.h"
 #include "memory_layout.h"
 #include "message_protocol.h"
 #include "reset.h"
 #include "serial_output.h"
+#include "tim.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -34,10 +36,16 @@ typedef enum
 
 static bootloader_state_t boot_state;
 static uint32_t           bootloader_flags;
+static volatile bool      display_ready;
 
 static void handle_reply_complete(int32_t status, uint32_t port)
 {
   bootloader_flags &= ~BOOTLOADER_FLAG_SENDING;
+}
+
+static void handle_display_complete(int32_t status, uint32_t port)
+{
+  display_ready = true;
 }
 
 void bootloader_init(void)
@@ -80,6 +88,10 @@ void bootloader_init(void)
     serial_printf("HW Rev: %d\r\n", bootloader_data->hardware_revision);
     serial_printf("Boot address: %x\r\n", bootloader_data->boot_address);
   }
+  display_ready = true;
+  display_init();
+  display_clear();
+  display_set_boot_pattern();
 }
 
 void bootloader_update(void)
@@ -109,6 +121,11 @@ void bootloader_update(void)
         }
       }
 
+      if (display_ready)
+      {
+        display_ready = false;
+        display_update(handle_display_complete);
+      }
       break;
     case BOOT_STATE_JUMP_TO_APP:
       {

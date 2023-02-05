@@ -1,4 +1,4 @@
-#ifdef HAL_SPI_MODULE_ENABLED
+
 #include "leds.h"
 
 #include "fast_hsv2rgb.h"
@@ -17,13 +17,13 @@
 // Our SPI is clocked at 3.0MHz
 // Each uS is therefore 3 bits
 // Each bit has a period of 330ns
-// High = 100
-// Low = 110
+// Low = 100
+// High = 110
 // Rst = 000
 // Need 50us of 0 to reset = 150 bits = 19
 
 #define BITS_PER_BIT (3)
-#define RST_BYTES (19)
+#define RST_BYTES (18)
 // One byte per color channel
 #define BYTES_PER_LED (BITS_PER_BIT * 3)
 #define CODEPOINT_LENGTH (RST_BYTES + (BYTES_PER_LED * LED_COUNT))
@@ -171,4 +171,3 @@ void update_leds(opt_callback_t cb)
   // HAL_SPI_Transmit_DMA(&hspi2, codepoints, CODEPOINT_LENGTH);
   spi_send(codepoints, CODEPOINT_LENGTH, cb);
 }
-#endif

@@ -4,6 +4,7 @@
 #include "leds.h"
 #include "time.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -17,6 +18,7 @@
 #define TX_INDEX (1)
 
 #define PATTERN_PERIOD_DEFAULT_MS (1000)
+#define PATTERN_UPDATE_LIMIT_MS (5)
 
 //------------------------------------
 // Type Definition
@@ -35,8 +37,9 @@ typedef struct
 //------------------------------------
 // Variable Declaration
 //------------------------------------
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
 static pattern_data_t patterns[LED_COUNT];
+static uint32_t       limit_timer;
 #endif
 
 //------------------------------------
@@ -45,7 +48,7 @@ static pattern_data_t patterns[LED_COUNT];
 
 void pattern_dispatch(uint8_t led_index, pattern_data_t* pattern_ref)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   if (NULL != pattern_ref)
   {
     // Shift into 255-0 space as a fixed-point (1.0-0.0) value
@@ -146,7 +149,7 @@ void pattern_dispatch(uint8_t led_index, pattern_data_t* pattern_ref)
       case PATTERN_SOS:
         {
           // ---___--- Rest ()
-          const uint32_t mask = 0b0001010100111011101110010101;
+          const uint32_t mask     = 0b0001010100111011101110010101;
           uint8_t        substate = (delta_ms * 32) / pattern_ref->period;
           if ((1 << substate) & mask)
           {
@@ -192,7 +195,7 @@ void pattern_dispatch(uint8_t led_index, pattern_data_t* pattern_ref)
 
 void pattern_engine_run(void)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   for (uint8_t led = 0; led < LED_COUNT; ++led)
   {
     pattern_dispatch(led, &patterns[led]);
@@ -206,17 +209,19 @@ void pattern_engine_run(void)
 
 void display_init(void)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   for (uint8_t led = 0; led < LED_COUNT; ++led)
   {
     clear_pattern(led);
   }
+  display_clear();
+  limit_timer = get_milliseconds();
 #endif
 }
 
 void display_update(opt_callback_t callback)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   pattern_engine_run();
   update_leds(callback);
 #endif
@@ -224,21 +229,21 @@ void display_update(opt_callback_t callback)
 
 void display_set_hsv(uint8_t led, uint8_t h, uint8_t s, uint8_t v)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   set_hsv(led, h, s, v);
 #endif
 }
 
 void display_set_rgb(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   set_rgb(led, r, g, b);
 #endif
 }
 
 void display_set_fast_rgb(uint8_t start, uint8_t count, uint8_t* values)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   for (uint8_t i = start; i < start + count; ++i)
   {
     set_rgb(i, *values, *(values + 1), *(values + 2));
@@ -249,7 +254,7 @@ void display_set_fast_rgb(uint8_t start, uint8_t count, uint8_t* values)
 
 void display_set_fast_hsv(uint8_t start, uint8_t count, uint8_t* values)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   for (uint8_t i = start; i < start + count; ++i)
   {
     set_hsv(i, *values, *(values + 1), *(values + 2));
@@ -260,7 +265,7 @@ void display_set_fast_hsv(uint8_t start, uint8_t count, uint8_t* values)
 
 void display_clear(void)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   for (uint8_t led = 0; led < LED_COUNT; ++led)
   {
     set_rgb(led, 0, 0, 0);
@@ -270,7 +275,7 @@ void display_clear(void)
 
 void set_pattern_rgb(pattern_t pattern, uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   if (led < LED_COUNT)
   {
     patterns[led].pattern = pattern;
@@ -285,7 +290,7 @@ void set_pattern_rgb(pattern_t pattern, uint8_t led, uint8_t r, uint8_t g, uint8
 
 void set_pattern_rgb_ex(pattern_t pattern, uint8_t led, uint8_t r, uint8_t g, uint8_t b, uint32_t period_ms, int32_t offset_ms)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   set_pattern_rgb(pattern, led, r, g, b);
   patterns[led].period = period_ms;
   patterns[led].timer  = get_milliseconds() + offset_ms;
@@ -294,7 +299,7 @@ void set_pattern_rgb_ex(pattern_t pattern, uint8_t led, uint8_t r, uint8_t g, ui
 
 void clear_pattern(uint8_t led)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   if (led < LED_COUNT)
   {
     patterns[led].pattern = PATTERN_NONE;
@@ -309,14 +314,14 @@ void clear_pattern(uint8_t led)
 
 void display_set_boot_pattern(void)
 {
-#ifdef HAL_SPI_MODULE_ENABLED
+#ifdef DISPLAY_ENABLED
   uint8_t r = 0;
   uint8_t g = 128;
   uint8_t b = 0;
 
   for (uint8_t i = 0; i < LED_COUNT; ++i)
   {
-    set_pattern_rgb_ex(PATTERN_BLINK, i, r, g, b, 1000, -100 * i);
+    set_pattern_rgb_ex(PATTERN_SOLID, i, r, g, b, 1000, 250 * i);
     uint8_t tmp = b;
     b           = g;
     g           = r;

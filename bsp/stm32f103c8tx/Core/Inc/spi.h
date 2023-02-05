@@ -24,11 +24,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "stm32f1xx_hal.h"
+
 #ifdef HAL_SPI_MODULE_ENABLED
 /* Includes ------------------------------------------------------------------*/
 #include "opt_prototypes.h"
 #include "stm32f1xx.h"
-#include "stm32f1xx_hal.h"
 #include <stdint.h>
 
   /* USER CODE BEGIN Includes */

@@ -21,7 +21,8 @@ DEBUG ?= 1
 OPT ?= -Og
 
 BSP ?= stm32f103c8tx
-BSP_PREFIX = ../bsp/$(BSP)
+SOURCE_ROOT = ..
+BSP_PREFIX = bsp/$(BSP)
 #######################################
 # paths
 #######################################
@@ -43,7 +44,7 @@ all: $(TARGET)
 
 $(TARGET):
 	$(MKDIR) $(BUILD_DIR)
-	cd $(BUILD_DIR); $(MAKE) -f ../$(TARGET)/Makefile
+	cd $(BUILD_DIR); $(MAKE) -f $(SOURCE_ROOT)/$(TARGET)/Makefile
 
 clean:
 	$(RM) -fR $(BUILD_DIR)
