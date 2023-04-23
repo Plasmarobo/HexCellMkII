@@ -88,15 +88,13 @@ void board_init(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  // Halt ms and us timers
+  DBGMCU->CR |= DBGMCU_CR_DBG_TIM3_STOP | DBGMCU_CR_DBG_TIM4_STOP;
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-#ifdef HAL_CAN_MODULE_ENABLED
-  MX_CAN_Init();
-#endif
 #ifdef HAL_RTC_MODULE_ENABLED
   MX_RTC_Init();
 #endif
@@ -142,7 +140,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();

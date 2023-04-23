@@ -22,8 +22,10 @@
 // Rst = 000
 // Need 50us of 0 to reset = 150 bits = 19
 
+// 2.25 MHz
+
 #define BITS_PER_BIT (3)
-#define RST_BYTES (18)
+#define RST_BYTES (19)
 // One byte per color channel
 #define BYTES_PER_LED (BITS_PER_BIT * 3)
 #define CODEPOINT_LENGTH (RST_BYTES + (BYTES_PER_LED * LED_COUNT))
@@ -110,8 +112,8 @@ static const uint8_t   gamma8[] = {
 
 static uint8_t codepoints[CODEPOINT_LENGTH] = { 0 };
 
-const uint32_t LOW  = 0x4;
-const uint32_t HIGH = 0x6;
+const uint32_t LOW  = 0x4; // 100
+const uint32_t HIGH = 0x6; // 110
 const uint32_t RST  = 0x0;
 
 static inline uint8_t scale_brightness(uint8_t input)

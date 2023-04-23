@@ -437,7 +437,7 @@ int32_t uart_send(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callba
     }
     else if (port == PORT_USB)
     {
-      CDC_Transmit_FS(buffer, length);
+      // CDC_Transmit_FS(buffer, length);
     }
   }
   return response;

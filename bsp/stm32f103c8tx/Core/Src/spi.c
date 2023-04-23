@@ -52,7 +52,7 @@ void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -129,13 +129,37 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 
 void spi_send(uint8_t* buffer, uint32_t length, opt_callback_t cb)
 {
+  uint32_t prim;
   operation_callback = cb;
+
+  prim = __get_PRIMASK();
+  __disable_irq();
+  /*
   if (HAL_OK != HAL_SPI_Transmit_IT(&hspi1, buffer, length))
   {
     if (NULL != cb)
     {
       cb(SPI_ERROR, 0);
     }
+  }
+  */
+  if (HAL_OK != HAL_SPI_Transmit(&hspi1, buffer, length, 1000))
+  {
+    if (NULL != cb)
+    {
+      cb(SPI_ERROR, 0);
+    }
+  }
+  else
+  {
+    if (NULL != cb)
+    {
+      cb(SPI_SUCCESS, 0);
+    }
+  }
+  if (!prim)
+  {
+    __enable_irq();
   }
 }
 

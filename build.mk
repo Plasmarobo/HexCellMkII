@@ -32,7 +32,7 @@ $(info =================================  Prep  ================================
 $(shell mkdir -p $(dir $(OBJECTS)) >/dev/null)
 $(info =================================  Build  =================================)
 
-all: $(TARGET_NAME).elf $(TARGET_NAME).hex $(TARGET_NAME).bin $(TARGET_NAME).fwu $(TARGET_NAME).srec 
+all: $(TARGET_NAME).elf $(TARGET_NAME).hex $(TARGET_NAME).bin $(TARGET_NAME).srec 
 
 %.o: $(SOURCE_ROOT)/%.c
 	$(MKDIR) $(@D)
@@ -54,9 +54,6 @@ $(TARGET_NAME).bin: $(TARGET_NAME).elf
 	
 $(TARGET_NAME).srec: $(TARGET_NAME).elf
 	$(CP) -O srec $< $@
-
-$(TARGET_NAME).fwu: $(TARGET_NAME).bin
-	python $(SOURCE_ROOT)/tools/image_builder.py -f $< -v $(FW_VERSION_MAJOR).$(FW_VERSION_MINOR).$(FW_VERSION_PATCH) -r $(HW_VERSION) -o $@
 
 #######################################
 # dependencies

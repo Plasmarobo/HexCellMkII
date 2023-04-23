@@ -30,7 +30,7 @@
  * 8  - MkIII (N/A)
  * 9  - MkIV-R1 (6 leds)
  * 10 - MkV-R1 (7 leds)
- * 11 - MkV-R1L (7 leds)
+ * 11 - MkV-R1L (6 leds)
  */
 #if (HW_VERSION == HW_VERSION_MKI)
 #define LED_COUNT (3)
@@ -40,8 +40,10 @@
 #define LED_COUNT (7)
 #elif (HW_VERSION > HW_VERSION_MKIIR2) && (HW_VERSION <= HW_VERSION_MKIVR1)
 #define LED_COUNT (6)
-#elif (HW_VERSION > HW_VERSION_MKIVR1) && (HW_VERSION <= HW_VERSION_MKVR1L)
+#elif (HW_VERSION > HW_VERSION_MKIVR1) && (HW_VERSION <= HW_VERSION_MKVR1)
 #define LED_COUNT (7)
+#elif (HW_VERSION > HW_VERSION_MKVR1) && (HW_VERSION <= HW_VERSION_MKVR1L)
+#define LED_COUNT (6)
 #else
 #error "Invalid HW_VERSION, unknown LED_COUNT, define leds for hardware version"
 #endif

@@ -76,14 +76,14 @@
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_PWR_MODULE_ENABLED
 #define HAL_RCC_MODULE_ENABLED
-//#define SERIAL_OUTPUT_ENABLED
+#define SERIAL_OUTPUT_ENABLED
 
-/* ########################## Oscillator Values adaptation ####################*/
-/**
- * @brief Adjust the value of External High Speed oscillator (HSE) used in your application.
- *        This value is used by the RCC HAL module to compute the system frequency
- *        (when HSE is used as system clock source, directly or through the PLL).
- */
+ /* ########################## Oscillator Values adaptation ####################*/
+ /**
+  * @brief Adjust the value of External High Speed oscillator (HSE) used in your application.
+  *        This value is used by the RCC HAL module to compute the system frequency
+  *        (when HSE is used as system clock source, directly or through the PLL).
+  */
 #if !defined  (HSE_VALUE)
   #define HSE_VALUE    16000000U /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */

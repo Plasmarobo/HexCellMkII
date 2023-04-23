@@ -49,10 +49,10 @@ void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance               = TIM3;
-  htim3.Init.Prescaler         = 24000; // 48MHz clock input, div 4, 12MHz clock, 12000 divider 1kHz output
+  htim3.Init.Prescaler         = 36000 - 1; // 48MHz clock input
   htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
   htim3.Init.Period            = 0xFFFF; // Max 16 bit integer
-  htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV4;
+  htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
@@ -88,7 +88,7 @@ void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance               = TIM4;
-  htim4.Init.Prescaler         = 480;
+  htim4.Init.Prescaler         = 36 - 1;
   htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
   htim4.Init.Period            = 0xFFFF;
   htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
@@ -196,13 +196,13 @@ void time_init(void)
 
 uint32_t get_milliseconds(void)
 {
-  uint16_t tvalue = __HAL_TIM_GET_COUNTER(&htim3);
+  uint32_t tvalue = __HAL_TIM_GET_COUNTER(&htim3);
   return millisecond_accumulator + tvalue;
 }
 
 uint64_t get_microseconds(void)
 {
-  uint16_t tvalue = __HAL_TIM_GET_COUNTER(&htim4);
+  uint32_t tvalue = __HAL_TIM_GET_COUNTER(&htim4);
   return microsecond_accumulator + tvalue;
 }
 
@@ -238,11 +238,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
   }
   else if (htim->Instance == TIM3)
   {
-    handle_microsecond_overflow();
+    handle_millisecond_overflow();
   }
   else if (htim->Instance == TIM4)
   {
-    handle_millisecond_overflow();
+    handle_microsecond_overflow();
   }
   /* USER CODE BEGIN Callback 1 */
 
