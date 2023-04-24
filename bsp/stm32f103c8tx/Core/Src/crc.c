@@ -22,6 +22,7 @@
 
 #include "bsp.h"
 
+#ifdef HAL_CRC_MODULE_ENABLED
 /* USER CODE BEGIN 0 */
 static uint32_t current_crc;
 /* USER CODE END 0 */
@@ -100,3 +101,4 @@ uint32_t finish_crc(void)
 }
 
 /* USER CODE END 1 */
+#endif

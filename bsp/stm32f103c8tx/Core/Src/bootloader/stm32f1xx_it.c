@@ -57,7 +57,9 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+#ifdef HAL_USB_MODULE_ENABLED
 extern PCD_HandleTypeDef hpcd_USB_FS;
+#endif
 #ifdef HAL_ADC_MODULE_ENABLED
 extern DMA_HandleTypeDef hdma_adc1;
 #endif
@@ -70,18 +72,24 @@ extern RTC_HandleTypeDef hrtc;
 #ifdef HAL_SPI_MODULE_ENABLED
 extern SPI_HandleTypeDef hspi1;
 #endif
+#ifdef HAL_DMA_MODULE_ENABLED
 extern DMA_HandleTypeDef  hdma_usart1_rx;
 extern DMA_HandleTypeDef  hdma_usart1_tx;
 extern DMA_HandleTypeDef  hdma_usart2_tx;
 extern DMA_HandleTypeDef  hdma_usart2_rx;
 extern DMA_HandleTypeDef  hdma_usart3_tx;
 extern DMA_HandleTypeDef  hdma_usart3_rx;
+#endif
+#ifdef HAL_UART_MODULE_ENABLED
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
+#endif
+#ifdef HAL_TIM_MODULE_ENABLED
 extern TIM_HandleTypeDef  htim1;
 extern TIM_HandleTypeDef  htim3;
 extern TIM_HandleTypeDef  htim4;
+#endif
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -365,7 +373,9 @@ void USB_HP_CAN1_TX_IRQHandler(void)
 #ifdef HAL_CAN_MODULE_ENABLED
   HAL_CAN_IRQHandler(&hcan);
 #endif
+#ifdef HAL_USB_MODULE_ENABLED
   HAL_PCD_IRQHandler(&hpcd_USB_FS);
+#endif
   /* USER CODE BEGIN USB_HP_CAN1_TX_IRQn 1 */
 
   /* USER CODE END USB_HP_CAN1_TX_IRQn 1 */
@@ -382,7 +392,9 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
 #ifdef HAL_CAN_MODULE_ENABLED
   HAL_CAN_IRQHandler(&hcan);
 #endif
+#ifdef HAL_USB_MODULE_ENABLED
   HAL_PCD_IRQHandler(&hpcd_USB_FS);
+#endif
   /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 1 */
 
   /* USER CODE END USB_LP_CAN1_RX0_IRQn 1 */

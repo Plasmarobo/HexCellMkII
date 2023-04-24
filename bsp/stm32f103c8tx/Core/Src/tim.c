@@ -16,7 +16,7 @@
  *
  ******************************************************************************
  */
-#ifndef HAL_TIM_MODULE_ENABLED
+#ifdef HAL_TIM_MODULE_ENABLED
 #include <stdint.h>
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/

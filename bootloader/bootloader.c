@@ -3,11 +3,10 @@
 #include "basic_system.h"
 #include "boot.h"
 #include "communication.h"
-#include "display.h"
+//#include "display.h"
 #include "memory_layout.h"
 #include "message_protocol.h"
 #include "reset.h"
-#include "serial_output.h"
 #include "tim.h"
 
 #include <stddef.h>
@@ -36,17 +35,17 @@ typedef enum
 
 static bootloader_state_t boot_state;
 static uint32_t           bootloader_flags;
-static volatile bool      display_ready;
+//static volatile bool      display_ready;
 
 static void handle_reply_complete(int32_t status, uint32_t port)
 {
   bootloader_flags &= ~BOOTLOADER_FLAG_SENDING;
 }
-
+/*
 static void handle_display_complete(int32_t status, uint32_t port)
 {
   display_ready = true;
-}
+}*/
 
 void bootloader_init(void)
 {
@@ -73,25 +72,10 @@ void bootloader_init(void)
 
   const image_metadata_t* bootloader_data = get_image_metadata(IMAGE_MAGIC_BL);
 
-  serial_print("=== BOOTLOADER ===\r\n");
-  serial_printf("Boot mode: %d, Reset reason: %d\r\n", boot_mode, reset_reason);
-  if ((NULL == bootloader_data) || (bootloader_data->image_magic != IMAGE_MAGIC_BL))
-  {
-    serial_print("Bootloader metadata invalid\r\n");
-  }
-  else
-  {
-    serial_printf("Version %d.%d.%d\r\n",
-                  bootloader_data->version_major,
-                  bootloader_data->version_minor,
-                  bootloader_data->version_patch);
-    serial_printf("HW Rev: %d\r\n", bootloader_data->hardware_revision);
-    serial_printf("Boot address: %x\r\n", bootloader_data->boot_address);
-  }
-  display_ready = true;
+  /*display_ready = true;
   display_init();
   display_clear();
-  display_set_boot_pattern();
+  display_set_boot_pattern();*/
 }
 
 void bootloader_update(void)
@@ -121,11 +105,11 @@ void bootloader_update(void)
         }
       }
 
-      if (display_ready)
+      /*if (display_ready)
       {
         display_ready = false;
         display_update(handle_display_complete);
-      }
+      }*/
       break;
     case BOOT_STATE_JUMP_TO_APP:
       {
@@ -136,12 +120,10 @@ void bootloader_update(void)
           if (BOOT_ADDRESS_INVALID != app_meta->boot_address)
           {
             // Metadata is telling us where to jump to, trust it
-            serial_printf("LOADING %x\r\n", app_meta->boot_address);
             boot_jump_to_image((uint32_t*)app_meta->boot_address);
           }
           else
           {
-            serial_printf("LOADING %x\r\n", ORIGIN_APP);
             // Jump to where we think the app should begin
             boot_jump_to_image((uint32_t*)ORIGIN_APP);
           }
@@ -149,7 +131,6 @@ void bootloader_update(void)
         else
         {
           // Todo: set error pattern
-          serial_print("Invalid jump address, listening\r\n");
           boot_state = BOOT_STATE_LISTEN;
         }
       }

@@ -1,10 +1,7 @@
 #include "bsp.h"
 
-#include "crc.h"
 #include "dma.h"
 #include "gpio.h"
-#include "rtc.h"
-#include "spi.h"
 #include "usart.h"
 
 #include "basic_system.h"

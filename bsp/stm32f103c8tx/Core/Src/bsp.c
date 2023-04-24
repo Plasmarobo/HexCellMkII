@@ -27,7 +27,6 @@
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
-#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -102,7 +101,9 @@ void board_init(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_CRC_Init();
+#ifdef HAL_USB_MODULE_ENABLED
   MX_USB_DEVICE_Init();
+#endif
 #ifdef HAL_ADC_MODULE_ENABLED
   MX_ADC1_Init();
 #endif

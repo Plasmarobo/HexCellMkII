@@ -21,7 +21,6 @@
 #include "usart.h"
 #include "bsp.h"
 #include "gpio.h"
-#include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -425,7 +424,7 @@ int32_t uart_send(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callba
   {
     response = UART_ERR_BUSY;
   }
-  else
+  /*else
   {
     uart_state_data[port].tx_cb = cb;
     if (port < PORT_USB)
@@ -439,7 +438,7 @@ int32_t uart_send(comm_port_t port, uint8_t* buffer, uint16_t length, opt_callba
     {
       // CDC_Transmit_FS(buffer, length);
     }
-  }
+  }*/
   return response;
 }
 

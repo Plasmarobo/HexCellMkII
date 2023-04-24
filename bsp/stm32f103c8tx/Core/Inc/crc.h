@@ -28,6 +28,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 #include <stdint.h>
+#ifdef HAL_CRC_MODULE_ENABLED
   /* USER CODE BEGIN Includes */
 
   /* USER CODE END Includes */
@@ -45,7 +46,7 @@ extern "C" {
   void     continue_crc(uint8_t* buffer, uint32_t length);
   uint32_t finish_crc(void);
   /* USER CODE END Prototypes */
-
+#endif
 #ifdef __cplusplus
 }
 #endif

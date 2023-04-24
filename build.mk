@@ -5,6 +5,8 @@
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 ASFLAGS = $(CFLAGS)
+# Enable featureset (from the BSP)
+CFLAGS += $(foreach item,$(FEATURES),-DHAL_$(item)_MODULE_ENABLED)
 #######################################
 # build the application
 #######################################
@@ -13,6 +15,7 @@ ASFLAGS = $(CFLAGS)
 C_SOURCES = $(sort $(foreach dir,$(SOURCE_DIRS),$(wildcard $(SOURCE_ROOT)/$(dir)/*.c)))
 OBJECTS = $(subst $(SOURCE_ROOT)/,,$(C_SOURCES:%.c=%.o))
 vpath %.c $(sort $(foreach sdir,$(SOURCE_DIRS),$(SOURCE_ROOT)/$(dir sdir)))
+C_SOURCES += $(SOURCE_LIST)
 # list of ASM program objects
 ASM_SOURCES = $(sort $(foreach dir,$(SOURCE_DIRS),$(wildcard $(SOURCE_ROOT)/$(dir)/*.s)))
 OBJECTS += $(subst $(SOURCE_ROOT)/,,$(ASM_SOURCES:%.s=%.o))

@@ -1,6 +1,8 @@
 
 TARGET_NAME = bootloader_$(HW_VERSION)
 
+FEATURES = RCC DMA FLASH TIM UART GPIO CORTEX CRC
+$(info FEATURESET: $(FEATURES))
 # Pull in BSP variables
 include $(SOURCE_ROOT)/$(BSP_PREFIX)/build.mk
 
@@ -11,17 +13,13 @@ BOOT_ADDRESS = 0x8006800
 INCLUDE_DIRS += \
 common/hal \
 common \
-Middlewares/Third_Party/FIFO \
-Middlewares/Third_Party/ST/STM32_USB_Device_Library/Core/Inc \
-Middlewares/Third_Party/ST/STM32_USB_Device_Library/Class/CDC/Inc
+Middlewares/Third_Party/FIFO
 
 # Pull in c files from bootloader and common, the BSP should already be defined
 SOURCE_DIRS += \
 bootloader \
 common \
-Middlewares/Third_Party/FIFO \
-Middlewares/Third_Party/ST/STM32_USB_Device_Library/Core/Src \
-Middlewares/Third_Party/ST/STM32_USB_Device_Library/Class/CDC/Src
+Middlewares/Third_Party/FIFO
 
 # link script
 LDSCRIPT = $(SOURCE_ROOT)/$(TARGET)/BOOTLOADER.ld
